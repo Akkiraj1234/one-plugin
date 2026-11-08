@@ -1,114 +1,544 @@
+/* ───────── Tokens ───────── */
 :host {
 	display: block;
 	min-width: 0;
 	color: var(--text);
-	font: inherit;
+	font:
+		14px/1.5 'Google Sans',
+		'Roboto',
+		'Inter',
+		system-ui,
+		sans-serif;
+
 	--accent: #a78bfa;
+	--minwidth: 400px;
+	--height: 300px;
+
+	--card-h: 64px; /* every card has the same height: the tree lines depend on it */
+	--indent: 22px; /* how far children are pushed in */
+	--tree-x: 29px; /* x position of the vertical tree line (under the parent's tile) */
+
+	--ease: cubic-bezier(0.2, 0, 0, 1);
+	--hover: #ffffff0f;
+	--press: #ffffff1a;
+	--hairline: #ffffff0d;
+	--hairline-strong: #ffffff1c;
 }
 
 :host *,
 :host *::before,
-:host *::after { box-sizing: border-box; }
-
-.manager {
-	width: 100%;
-	min-width: 0;
-	padding: clamp(20px, 3vw, 34px);
-	background: radial-gradient(ellipse at 92% 0%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 34%), var(--outer);
-	border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
-	border-radius: 22px;
-	box-shadow: 0 18px 55px #00000017;
+:host *::after {
+	box-sizing: border-box;
 }
 
+/* ───────── Shell ───────── */
+.main-manager {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.manager {
+	width: min(var(--minwidth), 100%);
+	background: var(--outer);
+	border-radius: 20px;
+	padding: 8px 16px 16px;
+}
+
+/* ───────── Header ───────── */
 .manager-header {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 24px;
-	padding: 4px 0 24px;
-	border-bottom: 1px solid var(--line);
+	gap: 12px;
+	min-height: 56px;
+	padding: 0;
+	border-bottom: 1px solid var(--hairline);
 }
 
-.manager-heading { min-width: 0; }
-.eyebrow { color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .15em; }
-.header-label { margin: 7px 0 5px; font-size: clamp(24px, 3vw, 32px); line-height: 1.1; letter-spacing: -.045em; }
-.header-subtitle { margin: 0; color: var(--muted); font-size: 13px; }
-.header-options { display: flex; flex: 0 0 auto; align-items: center; gap: 9px; }
+.manager-heading {
+	min-height: 0;
+	flex: 1;
+}
+
+.manager-heading-lable {
+	margin: 0;
+	font-size: 17px;
+	font-weight: 500;
+	line-height: 1.3;
+	letter-spacing: 0;
+	color: var(--text);
+}
+
+.manager-heading-total {
+	margin: 1px 0 0;
+	color: var(--muted);
+	font-size: 12px;
+	line-height: 1.3;
+}
+
+.header-options {
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: 2px;
+}
+
+/* icon button: invisible until hovered */
 .header-button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
-	width: 40px;
-	height: 40px;
+	width: 36px;
+	height: 36px;
 	padding: 0;
 	color: var(--muted);
-	background: var(--panel);
-	border: 1px solid var(--line);
-	border-radius: 12px;
+	background: transparent;
+	border: 0;
+	border-radius: 50%;
 	cursor: pointer;
-	transition: color .16s ease, background .16s ease, transform .16s ease;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
 }
-.header-button:hover { color: var(--text); background: var(--panel-hover); transform: translateY(-1px); }
-.header-button:focus-visible, .add-hobby-form :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.header-button svg { width: 18px; height: 18px; }
-.header-button.add-hobby-button { width: auto; padding: 0 15px; color: #171321; background: var(--accent); border-color: transparent; font: inherit; font-size: 12px; font-weight: 700; }
-.header-button.add-hobby-button:hover { background: color-mix(in srgb, var(--accent) 85%, white); }
 
-.manager-content { padding-top: 22px; }
-.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
-.section-heading h2 { margin: 0; font-size: 16px; letter-spacing: -.02em; }
-.hobby-count { margin: 4px 0 0; color: var(--soft); font-size: 11px; }
-.month-label { padding: 6px 10px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 600; }
-.search-wrap { margin: 0 0 12px; }
-.search-wrap[hidden] { display: none; }
-.search-input { width: 100%; padding: 11px 13px; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 13px; }
-.hobby-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 370px), 1fr)); gap: 11px; }
-.hobby-card {
+.header-button svg {
+	width: 20px;
+	height: 20px;
+}
+
+.header-button:hover {
+	color: var(--text);
+	background: var(--hover);
+}
+
+.header-button:active {
+	background: var(--press);
+}
+
+.header-button:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.header-button:disabled {
+	opacity: 0.38;
+	cursor: default;
+	pointer-events: none;
+}
+
+/* ───────── Scroll area ─────────
+   The native scrollbar is hidden. A floating thumb (see .scroll-track) is drawn
+   inside the manager's side padding, so it never takes space from the cards
+   and left / right margins stay equal. */
+.manager-scroll {
 	position: relative;
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	gap: 12px 14px;
+}
+
+.manager-content {
+	height: var(--height);
+	padding: 12px 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	overscroll-behavior: contain;
+
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+
+	/* soft fade at the top and bottom edge */
+	-webkit-mask-image: linear-gradient(
+		to bottom,
+		transparent 0,
+		#000 12px,
+		#000 calc(100% - 12px),
+		transparent 100%
+	);
+	mask-image: linear-gradient(
+		to bottom,
+		transparent 0,
+		#000 12px,
+		#000 calc(100% - 12px),
+		transparent 100%
+	);
+}
+
+.manager-content::-webkit-scrollbar {
+	display: none;
+}
+
+.scroll-track {
+	position: absolute;
+	top: 12px;
+	bottom: 12px;
+	right: -13px; /* inside the manager's 16px right padding */
+	width: 10px;
+	display: none;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.2s ease;
+}
+
+.manager-scroll.is-scrollable .scroll-track {
+	display: block;
+}
+
+.manager-scroll.is-near-edge .scroll-track,
+.manager-scroll.is-scrolling .scroll-track,
+.manager-scroll.is-dragging .scroll-track {
+	opacity: 1;
+}
+
+.manager-scroll.is-near-edge .scroll-track,
+.manager-scroll.is-dragging .scroll-track {
+	pointer-events: auto;
+}
+
+.scroll-thumb {
+	position: absolute;
+	top: 0;
+	right: 3px;
+	width: 4px;
+	min-height: 32px;
+	border-radius: 999px;
+	background: #ffffff40;
+	cursor: pointer;
+	touch-action: none;
+	transition:
+		width 0.15s var(--ease),
+		right 0.15s var(--ease),
+		background-color 0.15s ease;
+}
+
+.scroll-thumb:hover,
+.manager-scroll.is-dragging .scroll-thumb {
+	right: 2px;
+	width: 6px;
+	background: #ffffff66;
+}
+
+.manager-scroll.is-dragging .scroll-thumb {
+	background: #ffffff80;
+}
+
+/* ───────── List + tree ───────── */
+.hobby-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.hobby-group {
+	position: relative;
 	min-width: 0;
-	padding: 15px 16px 12px;
-	background: color-mix(in srgb, var(--panel) 92%, transparent);
-	border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
-	border-radius: 15px;
-	transition: border-color .18s ease, transform .18s ease, background .18s ease;
-}
-.hobby-card:hover { border-color: color-mix(in srgb, var(--hobby-color) 55%, var(--line)); transform: translateY(-2px); background: var(--panel-hover); }
-.hobby-identity { display: flex; align-items: flex-start; min-width: 0; gap: 11px; }
-.hobby-marker { width: 10px; height: 10px; margin-top: 4px; flex: 0 0 10px; background: var(--hobby-color); border-radius: 50%; box-shadow: 0 0 0 4px color-mix(in srgb, var(--hobby-color) 15%, transparent); }
-.hobby-copy { min-width: 0; }
-.hobby-name { overflow: hidden; margin: 0; font-size: 14px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
-.hobby-description { overflow: hidden; margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap; }
-.hobby-target { align-self: start; padding: 5px 8px; color: var(--muted); background: color-mix(in srgb, var(--hobby-color) 10%, var(--outer)); border-radius: 999px; font-size: 10px; font-weight: 600; white-space: nowrap; }
-.hobby-graph-wrap { grid-column: 1 / -1; min-width: 0; padding-top: 2px; }
-.graph-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 1px; }
-.graph-heading > span:first-child { color: var(--soft); font-size: 9px; font-weight: 750; letter-spacing: .1em; }
-.graph-summary { color: var(--muted); font-size: 10px; }
-.activity-chart { display: block; width: 100%; height: 58px; overflow: visible; }
-.chart-baseline { fill: none; stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 4; }
-.chart-area { fill: color-mix(in srgb, var(--hobby-color) 15%, transparent); }
-.chart-line { fill: none; stroke: var(--hobby-color); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
-.empty-state { grid-column: 1 / -1; padding: 34px 16px; color: var(--muted); background: var(--panel); border: 1px dashed var(--line); border-radius: 14px; text-align: center; font-size: 13px; }
-.add-hobby-form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 15px; padding: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
-.add-hobby-form label { color: var(--muted); font-size: 12px; font-weight: 650; }
-.add-hobby-form input { flex: 1 1 150px; min-width: 0; padding: 9px 10px; color: var(--text); background: var(--outer); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 12px; }
-.add-hobby-form button { padding: 9px 12px; color: var(--text); background: var(--panel-hover); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; font: inherit; font-size: 11px; font-weight: 650; }
-.add-hobby-form button[type="submit"] { color: #171321; background: var(--accent); border-color: transparent; }
-
-@media (max-width: 560px) {
-	.manager { padding: 18px 14px; border-radius: 17px; }
-	.manager-header { align-items: flex-start; gap: 12px; }
-	.header-subtitle { max-width: 250px; line-height: 1.45; }
-	.header-options { gap: 6px; }
-	.header-button { width: 36px; height: 36px; border-radius: 10px; }
-	.header-button.add-hobby-button { width: 36px; padding: 0; }
-	.header-button.add-hobby-button span { display: none; }
-	.hobby-card { padding: 13px 12px 10px; }
 }
 
+/* children: smooth expand / collapse (0fr <-> 1fr) */
+.hobby-children {
+	display: grid;
+	grid-template-rows: 1fr;
+	margin-left: var(--tree-x);
+	transition: grid-template-rows 0.26s var(--ease);
+}
+
+.hobby-group.is-collapsed > .hobby-children {
+	grid-template-rows: 0fr;
+}
+
+.hobby-children-inner {
+	min-height: 0;
+	overflow: hidden;
+}
+
+.hobby-children-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px 0 0 var(--indent);
+}
+
+/* tree connectors: a rounded elbow into every child ... */
+.hobby-children-list > .hobby-group::before,
+.hobby-children-list > .hobby-group::after {
+	content: '';
+	position: absolute;
+	left: calc(var(--indent) * -1);
+	pointer-events: none;
+}
+
+.hobby-children-list > .hobby-group::before {
+	top: -8px;
+	width: calc(var(--indent) - 6px);
+	height: calc(var(--card-h) / 2 + 8px);
+	border-left: 1px solid var(--hairline-strong);
+	border-bottom: 1px solid var(--hairline-strong);
+	border-bottom-left-radius: 10px;
+}
+
+/* ... and the line that continues down to the next sibling */
+.hobby-children-list > .hobby-group:not(:last-child)::after {
+	top: calc(var(--card-h) / 2);
+	bottom: -8px;
+	border-left: 1px solid var(--hairline-strong);
+}
+
+/* ───────── Card ───────── */
+.hobby-card {
+	display: grid;
+	grid-template-columns: 32px minmax(0, 1fr) auto;
+	align-items: center;
+	column-gap: 12px;
+	height: var(--card-h);
+	min-width: 0;
+	padding: 0 12px;
+	background: var(--panel);
+	border: 1px solid transparent;
+	border-radius: 14px;
+	outline: 0;
+	transition:
+		background-color 0.16s ease,
+		border-color 0.16s ease;
+}
+
+.hobby-card:hover {
+	background: var(--panel-hover);
+	border-color: var(--hairline);
+}
+
+.hobby-card:active {
+	background: color-mix(in srgb, var(--panel-hover) 90%, white);
+}
+
+.hobby-card:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: -2px; /* inset, so the collapsing tree never clips it */
+}
+
+/* coloured initial tile (colour comes from --hobby-color set in JS) */
+.card-lead {
+	display: grid;
+	place-items: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 10px;
+	background: color-mix(
+		in srgb,
+		var(--hobby-color, var(--accent)) 16%,
+		transparent
+	);
+	color: var(--hobby-color, var(--accent));
+	font-size: 14px;
+	font-weight: 600;
+	user-select: none;
+}
+
+.card-text {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+
+.card-name-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+
+.card-name {
+	min-width: 0;
+	overflow: hidden;
+	color: var(--text);
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.35;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.card-desc {
+	margin: 0;
+	overflow: hidden;
+	color: var(--muted);
+	font-size: 12px;
+	line-height: 1.4;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* little "▾ 2" pill that collapses the children */
+.card-toggle {
+	display: inline-flex;
+	flex: 0 0 auto;
+	align-items: center;
+	gap: 2px;
+	height: 20px;
+	padding: 0 7px 0 3px;
+	color: var(--muted);
+	background: transparent;
+	border: 0;
+	border-radius: 999px;
+	font: inherit;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+}
+
+.card-toggle:hover {
+	color: var(--text);
+	background: var(--hover);
+}
+
+.card-toggle:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 1px;
+}
+
+.card-toggle svg {
+	width: 14px;
+	height: 14px;
+	transition: transform 0.24s var(--ease);
+}
+
+.hobby-group.is-collapsed > .hobby-card .card-toggle svg {
+	transform: rotate(-90deg);
+}
+
+.card-side {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+}
+
+.card-graph {
+	width: 80px;
+	height: 28px;
+}
+
+.card-graph svg {
+	display: block;
+	overflow: visible;
+}
+
+.card-graph-empty {
+	color: var(--muted);
+	font-size: 10px;
+	white-space: nowrap;
+}
+
+.card-meta {
+	max-width: 96px;
+	overflow: hidden;
+	color: var(--muted);
+	font-size: 11px;
+	line-height: 1.2;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+/* ───────── Sparkline ───────── */
+.sparkline-line {
+	stroke-dasharray: 1; /* path has pathLength="1" */
+	stroke-dashoffset: 0;
+	animation: spark-draw 0.9s var(--ease) both;
+	transition: stroke-width 0.15s ease;
+}
+
+.sparkline-area,
+.sparkline-dot {
+	animation: spark-fade 0.6s ease 0.35s both;
+}
+
+.hobby-card:hover .sparkline-line {
+	stroke-width: 2;
+}
+
+@keyframes spark-draw {
+	from {
+		stroke-dashoffset: 1;
+	}
+}
+
+@keyframes spark-fade {
+	from {
+		opacity: 0;
+	}
+}
+
+/* ───────── Skeleton (fake data) ───────── */
+.hobby-card.fakedata {
+	pointer-events: none;
+}
+
+.hobby-card.fakedata .card-lead,
+.hobby-card.fakedata .card-name,
+.hobby-card.fakedata .card-desc,
+.hobby-card.fakedata .card-meta,
+.hobby-card.fakedata .card-graph {
+	background: var(--muted);
+	color: transparent;
+	font-size: 0;
+	opacity: 0.15;
+	animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+.hobby-card.fakedata .card-name {
+	display: block;
+	width: 46%;
+	height: 10px;
+	border-radius: 5px;
+}
+
+.hobby-card.fakedata .card-desc {
+	width: 82%;
+	height: 8px;
+	margin-top: 6px;
+	border-radius: 4px;
+}
+
+.hobby-card.fakedata .card-meta {
+	width: 52px;
+	height: 8px;
+	border-radius: 4px;
+}
+
+.hobby-card.fakedata .card-graph {
+	border-radius: 8px;
+}
+
+@keyframes skeleton-pulse {
+	0%,
+	100% {
+		opacity: 0.1;
+	}
+
+	50% {
+		opacity: 0.22;
+	}
+}
+
+/* ───────── Reduced motion ───────── */
 @media (prefers-reduced-motion: reduce) {
-	*, *::before, *::after { transition-duration: .01ms !important; }
+	.header-button,
+	.hobby-card,
+	.card-toggle,
+	.card-toggle svg,
+	.hobby-children,
+	.scroll-track,
+	.scroll-thumb,
+	.sparkline-line {
+		transition: none;
+	}
+
+	.sparkline-line,
+	.sparkline-area,
+	.sparkline-dot,
+	.hobby-card.fakedata * {
+		animation: none;
+	}
 }

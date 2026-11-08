@@ -2,7 +2,7 @@
 - [x] write good markdown
 - [x] build redeme.md
 - [x] write contributers.md
-- [ ] build ui interface for hobby manager
+- [x] build ui interface for hobby manager
 - [ ] check for markdb script and status
 - [ ] setup whole project structure
 - [ ] write about devloper guidlines and docs
@@ -19,3 +19,8 @@
 
 that is all for right now
 create docs
+
+
+- [ ] make playground code return widgest object
+- [ ] define proper meaning of its api and create widgtes on its
+- [ ] define a widgest parent class

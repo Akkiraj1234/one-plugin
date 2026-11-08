@@ -9,6 +9,7 @@ import {
 const hobbyManager = new HobbyManager();
 const activityManager = new ActivityManager();
 const hobbyPlannerManager = new HobbyPlannerManager();
+
 const MONTH_WIDTH = 100;
 
 
@@ -18,66 +19,136 @@ const MONTH_WIDTH = 100;
  * Manages the Hobby Planner interface and its rendering lifecycle.
  *
  * Responsible for:
- * - Creating the planner layout and its initial placeholder view.
- * - Caching references to the generated DOM elements.
+ * - Creating and managing an isolated Shadow DOM.
+ * - Loading the planner stylesheet.
+ * - Creating and caching planner DOM elements.
  * - Preparing planner and activity data for a selected month.
  * - Rendering planner labels, month headers, and activity timelines.
  * - Managing timeline navigation and resize interactions.
  *
- * The supplied container remains owned by the caller. The class only
- * creates and removes the planner interface inside that container.
+ * The supplied parent element remains owned by the caller. The class
+ * creates and manages its own host and Shadow DOM.
  *
  * @class HobbyPlanner
  */
-export class HobbyPlanner {
+export default class HobbyPlanner {
 
 	/**
 	 * Creates a HobbyPlanner instance.
 	 *
-	 * @param {HTMLElement} element
-	 *        Container element in which the planner interface is created.
+	 * @param {HTMLElement} parentElement
+	 *        Parent element in which the planner host is created.
 	 *
 	 * @throws {TypeError}
 	 *         If the supplied value is not an HTML element.
 	 */
-	constructor(element) {
-		if (!element || element.nodeType !== 1) {
+	constructor(parentElement) {
+		if (!parentElement || parentElement.nodeType !== 1) {
 			throw new TypeError("HobbyPlanner requires a valid HTML element.");
 		}
 
-		this.time = new Date();
-		this.element = element;
-		this.initialized = false;
+		this.parentElement = parentElement;
 
+		// Shadow DOM references.
+		this.host = null;
+		this.shadow = null;
+		this.container = null;
+
+		// Planner state.
+		this.time = new Date();
+		this.initialized = false;
 		this.selectedIndex = 0;
 		this.monthData = [[], []];
 		this.plannerData = null;
 		this.slotRows = [];
 		this.hobbyCache = new Map();
 
+		// Interaction state.
 		this.wheelTimer = null;
 		this.wheelDirection = 0;
 
+		// Persistent event handlers.
 		this.wheelHandler = (event) => this.#handleWheel(event);
 		this.resizeHandler = () => this.#handleResize();
+
+		this.#initialize();
 	}
 
 	/**
 	 * Initializes the planner interface.
 	 *
-	 * Creates the empty layout, caches its DOM references, binds persistent
-	 * interaction listeners, and renders a lightweight placeholder preview.
+	 * Creates the host, attaches Shadow DOM, loads the stylesheet,
+	 * creates the base layout, caches DOM references, and renders
+	 * the initial placeholder preview.
+	 *
 	 * No planner or activity data is retrieved during initialization.
 	 *
-	 * @throws {Error}
-	 *         If the instance has already been initialized.
+	 * The method is safe to call again while already initialized.
 	 */
 	initialize() {
-		if (this.initialized) {
-			throw new Error("HobbyPlanner is already initialized.");
-		}
+		if (this.initialized) return;
+		this.#initialize();
+	}
 
-		this.element.innerHTML = `
+	/**
+	 * Initializes the component's DOM and initial content.
+	 *
+	 * @private
+	 */
+	#initialize() {
+		if (this.initialized) return;
+
+		try {
+			this.#create_dom();
+			this.initialized = true;
+			this.render_content();
+		} catch (error) {
+			this.host?.remove();
+
+			this.host = null;
+			this.shadow = null;
+			this.container = null;
+			this.initialized = false;
+
+			throw error;
+		}
+	}
+
+	/**
+	 * Creates the host element and attaches its Shadow DOM.
+	 *
+	 * Loads the planner stylesheet and creates the main content container.
+	 */
+	#create_dom() {
+		this.host = document.createElement("div");
+		this.host.className = "hobby-planner-host";
+
+		this.parentElement.append(this.host);
+
+		this.shadow = this.host.attachShadow({
+			mode: "open"
+		});
+
+		const stylesheet = document.createElement("link");
+		stylesheet.rel = "stylesheet";
+		stylesheet.href = new URL("./index.css", import.meta.url).href;
+
+		this.container = document.createElement("div");
+		this.container.className = "hobby-planner-content";
+
+		this.shadow.append(stylesheet, this.container);
+	}
+
+	/**
+	 * Renders the base planner interface and placeholder preview.
+	 *
+	 * Creates the layout, caches its DOM references, and binds persistent
+	 * interaction listeners. No planner or activity data is retrieved here.
+	 */
+	render_content() {
+		if (!this.initialized || !this.container) return;
+
+		this.container.innerHTML = `
             <main class="tracker">
                 <section class="labels" aria-label="Hobby planner labels">
                     <p class="lable-heading">Hobby Planner</p>
@@ -96,41 +167,51 @@ export class HobbyPlanner {
                 </section>
             </main>`;
 
-		this.heading = this.element.querySelector(".lable-heading");
-		this.labelList = this.element.querySelector(".label-list");
-		this.timeline = this.element.querySelector(".timeline");
-		this.track = this.element.querySelector(".timeline-track");
-		this.monthRow = this.element.querySelector(".timeline-months-row");
-		this.timelineData = this.element.querySelector(".timeline-data");
-		this.timelineGrid = this.element.querySelector(".timeline-grid");
+		// Cache DOM references.
+		this.heading = this.container.querySelector(".lable-heading");
+		this.labelList = this.container.querySelector(".label-list");
+		this.timeline = this.container.querySelector(".timeline");
+		this.track = this.container.querySelector(".timeline-track");
+		this.monthRow = this.container.querySelector(".timeline-months-row");
+		this.timelineData = this.container.querySelector(".timeline-data");
+		this.timelineGrid = this.container.querySelector(".timeline-grid");
 
-		this.initialized = true;
-		this.timeline.addEventListener("wheel", this.wheelHandler, { passive: false });
+		// Bind persistent interaction listeners.
+		this.timeline.addEventListener("wheel", this.wheelHandler, {
+			passive: false
+		});
+
 		window.addEventListener("resize", this.resizeHandler);
 
 		this.#renderPlaceholder();
 	}
 
 	/**
-	 * Destroys the planner interface and releases its internal state.
+	 * Clears rendered content and releases UI-specific resources.
 	 *
-	 * Removes registered event listeners, clears pending timers, removes the
-	 * generated interface from the supplied container, and releases cached
-	 * DOM and data references. The supplied container itself is not removed.
-	 *
-	 * The instance can be initialized again after destruction.
+	 * Removes event listeners, clears pending timers, clears the container,
+	 * and resets cached DOM and planner-rendering state. The host and Shadow
+	 * DOM remain until destroy() is called.
 	 */
-	destroy() {
-		if (!this.initialized) return;
+	remove_content() {
+		if (!this.container) return;
 
 		clearTimeout(this.wheelTimer);
 		this.wheelTimer = null;
 
-		this.timeline.removeEventListener("wheel", this.wheelHandler);
-		window.removeEventListener("resize", this.resizeHandler);
+		this.timeline?.removeEventListener(
+			"wheel",
+			this.wheelHandler
+		);
 
-		this.element.replaceChildren();
+		window.removeEventListener(
+			"resize",
+			this.resizeHandler
+		);
 
+		this.container.replaceChildren();
+
+		// Clear cached DOM references.
 		this.heading = null;
 		this.labelList = null;
 		this.timeline = null;
@@ -139,12 +220,34 @@ export class HobbyPlanner {
 		this.timelineData = null;
 		this.timelineGrid = null;
 
+		// Reset planner state.
 		this.selectedIndex = 0;
 		this.monthData = [[], []];
 		this.plannerData = null;
 		this.slotRows = [];
 		this.hobbyCache.clear();
 		this.wheelDirection = 0;
+	}
+
+	/**
+	 * Destroys the planner interface and releases its resources.
+	 *
+	 * Cleans up rendered content, removes the host from its parent,
+	 * clears DOM references, and resets the lifecycle state.
+	 *
+	 * The instance can be initialized again after destruction.
+	 */
+	destroy() {
+		if (!this.initialized) return;
+
+		this.remove_content();
+
+		this.host?.remove();
+
+		this.host = null;
+		this.shadow = null;
+		this.container = null;
+
 		this.initialized = false;
 	}
 
@@ -183,6 +286,7 @@ export class HobbyPlanner {
 		const preparedData = this.#prepareHobbyData(year, month);
 
 		this.emptyHtmlElements();
+
 		this.plannerData = preparedData.plannerData;
 		this.monthData = preparedData.monthData;
 		this.selectedIndex = 0;
@@ -192,7 +296,11 @@ export class HobbyPlanner {
 		this.#renderRightMonth();
 		this.#renderRightActivity();
 		this.#updateLayout();
-		this.timeline.scrollTo({ left: 0, behavior: "auto" });
+
+		this.timeline.scrollTo({
+			left: 0,
+			behavior: "auto"
+		});
 	}
 
 	/**
@@ -204,6 +312,7 @@ export class HobbyPlanner {
 		this.labelList.replaceChildren();
 		this.timelineData.replaceChildren(this.timelineGrid);
 		this.timelineGrid.replaceChildren();
+
 		this.heading.textContent = "Hobby Planner";
 	}
 
@@ -251,7 +360,9 @@ export class HobbyPlanner {
 		const filterobj = getSectionIdFilterByPlanner(plannerData);
 
 		// The manager expects the section filter inside the filter options.
-		const activityFilter = { onlysectionid: filterobj };
+		const activityFilter = {
+			onlysectionid: filterobj
+		};
 
 		const currentYearData = activityManager.get_by_month(
 			plannerData.year,
@@ -291,8 +402,16 @@ export class HobbyPlanner {
 		return {
 			plannerData,
 			monthData: [
-				convertToList(currentYearData, currentYearMonths, plannerData.year),
-				convertToList(previousYearData, previousYearMonths, plannerData.year - 1)
+				convertToList(
+					currentYearData,
+					currentYearMonths,
+					plannerData.year
+				),
+				convertToList(
+					previousYearData,
+					previousYearMonths,
+					plannerData.year - 1
+				)
 			]
 		};
 	}
@@ -304,7 +423,10 @@ export class HobbyPlanner {
 	 *          Current-year months followed by previous-year months.
 	 */
 	#getTimelineMonths() {
-		return [...this.monthData[0], ...this.monthData[1]];
+		return [
+			...this.monthData[0],
+			...this.monthData[1]
+		];
 	}
 
 	/**
@@ -341,18 +463,21 @@ export class HobbyPlanner {
 	 */
 	#getHobby(hobbyId) {
 		if (!this.hobbyCache.has(hobbyId)) {
-			this.hobbyCache.set(hobbyId, hobbyManager.get(hobbyId));
+			this.hobbyCache.set(
+				hobbyId,
+				hobbyManager.get(hobbyId)
+			);
 		}
 
 		return this.hobbyCache.get(hobbyId);
 	}
 
 	/**
- * Renders the initial placeholder preview shown after initialization.
- *
- * This is presentation-only demo content. It does not use or modify
- * planner, hobby, or activity data.
- */
+	 * Renders the initial placeholder preview shown after initialization.
+	 *
+	 * This is presentation-only demo content. It does not use or modify
+	 * planner, hobby, or activity data.
+	 */
 	#renderPlaceholder() {
 		const demoSections = [
 			{ title: "Planning", rows: 2 },
@@ -361,9 +486,12 @@ export class HobbyPlanner {
 		];
 
 		const currentMonth = this.time.getMonth();
+
 		const demoMonths = Array.from(
 			{ length: 6 },
-			(_, index) => SHORT_MONTHS[(currentMonth - index + 12) % 12]
+			(_, index) => SHORT_MONTHS[
+				(currentMonth - index + 12) % 12
+			]
 		);
 
 		this.heading.textContent = "Hobby Planner";
@@ -377,10 +505,12 @@ export class HobbyPlanner {
 			monthElement.className = "timeline-month is-placeholder";
 			monthElement.textContent = month;
 			monthElement.style.opacity = "0.55";
+
 			this.monthRow.append(monthElement);
 
 			const gridCell = document.createElement("span");
 			gridCell.className = "timeline-grid-cell is-placeholder";
+
 			this.timelineGrid.append(gridCell);
 		}
 
@@ -392,46 +522,66 @@ export class HobbyPlanner {
 			sectionLabel.textContent = section.title;
 			sectionLabel.style.minHeight = "30px";
 			sectionLabel.style.opacity = "0.65";
+
 			this.labelList.append(sectionLabel);
 
 			const sectionTimeline = document.createElement("div");
 			sectionTimeline.className = "timeline-section-row is-placeholder";
 			sectionTimeline.style.minHeight = "30px";
+
 			this.timelineData.append(sectionTimeline);
 
 			for (let index = 0; index < section.rows; index += 1) {
 				const label = document.createElement("div");
-				label.className = "lable-row depth-1 is-placeholder is-empty";
+
+				label.className =
+					"lable-row depth-1 is-placeholder is-empty";
+
 				label.setAttribute("aria-hidden", "true");
 				label.style.minHeight = "34px";
+
 				this.labelList.append(label);
 
 				const row = document.createElement("div");
+
 				row.className = "timeline-activity-row is-placeholder";
 				row.style.minHeight = "34px";
 				row.style.display = "grid";
+
 				row.style.gridTemplateColumns =
 					`repeat(${demoMonths.length}, ${MONTH_WIDTH}px)`;
 
 				const bar = document.createElement("span");
+
 				bar.className = "activity-bar is-placeholder";
+
 				bar.style.gridColumn =
-					`${(rowIndex % 3) + 1} / ${Math.min(demoMonths.length + 1, (rowIndex % 3) + 3)}`;
+					`${(rowIndex % 3) + 1} / ${Math.min(
+						demoMonths.length + 1,
+						(rowIndex % 3) + 3
+					)}`;
+
 				bar.style.opacity = "0.22";
 				bar.style.minHeight = "14px";
 				bar.style.alignSelf = "center";
 
 				row.append(bar);
 				this.timelineData.append(row);
+
 				rowIndex += 1;
 			}
 		}
 
 		const placeholderWidth = demoMonths.length * MONTH_WIDTH;
+
 		const placeholderColumns =
 			`repeat(${demoMonths.length}, ${MONTH_WIDTH}px)`;
 
-		this.track.style.setProperty("--content-width", `${placeholderWidth}px`);
+		this.track.style.setProperty(
+			"--content-width",
+			`${placeholderWidth}px`
+		);
+
 		this.track.style.setProperty("--tail-width", "0px");
 
 		this.monthRow.style.gridTemplateColumns = placeholderColumns;
@@ -442,10 +592,12 @@ export class HobbyPlanner {
 
 		this.timelineData.style.width = `${placeholderWidth}px`;
 
-		this.timelineData.querySelectorAll(".timeline-activity-row").forEach(row => {
-			row.style.gridTemplateColumns = placeholderColumns;
-			row.style.width = `${placeholderWidth}px`;
-		});
+		this.timelineData
+			.querySelectorAll(".timeline-activity-row")
+			.forEach(row => {
+				row.style.gridTemplateColumns = placeholderColumns;
+				row.style.width = `${placeholderWidth}px`;
+			});
 	}
 
 	/**
@@ -459,24 +611,36 @@ export class HobbyPlanner {
 			? planner.order
 			: Object.keys(sections);
 
-		const selectedMonth = this.#getTimelineMonths()[this.selectedIndex];
+		const selectedMonth =
+			this.#getTimelineMonths()[this.selectedIndex];
 
 		this.heading.textContent = planner.title ?? "Hobby Planner";
 		this.slotRows = [];
 
 		for (const sectionId of order) {
 			const section = sections[sectionId];
+
 			if (!section) continue;
 
 			const sectionLabel = document.createElement("div");
 			sectionLabel.className = "label-section-row";
-			sectionLabel.textContent = section.title ?? `Section ${sectionId}`;
+			sectionLabel.textContent =
+				section.title ?? `Section ${sectionId}`;
+
 			sectionLabel.dataset.sectionId = sectionId;
 
 			this.labelList.append(sectionLabel);
-			this.slotRows.push({ type: "section", sectionId });
 
-			for (let slotIndex = 0; slotIndex < section.slotsAllow; slotIndex += 1) {
+			this.slotRows.push({
+				type: "section",
+				sectionId
+			});
+
+			for (
+				let slotIndex = 0;
+				slotIndex < section.slotsAllow;
+				slotIndex += 1
+			) {
 				const activity = this.#getSlotActivity(
 					selectedMonth?.activities ?? [],
 					sectionId,
@@ -488,12 +652,14 @@ export class HobbyPlanner {
 					: null;
 
 				const label = document.createElement("div");
+
 				label.className = "lable-row depth-1";
 				label.dataset.sectionId = sectionId;
 				label.dataset.slot = String(slotIndex);
 
 				if (!hobby) {
 					label.classList.add("is-empty");
+
 					label.setAttribute(
 						"aria-label",
 						`Empty slot ${slotIndex + 1}`
@@ -542,7 +708,9 @@ export class HobbyPlanner {
 			monthElement.textContent = SHORT_MONTHS[monthData.month];
 
 			monthElement.dataset.month =
-				`${monthData.year}-${String(monthData.month + 1).padStart(2, "0")}`;
+				`${monthData.year}-${String(
+					monthData.month + 1
+				).padStart(2, "0")}`;
 
 			monthElement.title =
 				`${SHORT_MONTHS[monthData.month]} ${monthData.year}`;
@@ -571,6 +739,7 @@ export class HobbyPlanner {
 		for (const entry of this.slotRows) {
 			if (entry.type === "section") {
 				const sectionRow = document.createElement("div");
+
 				sectionRow.className = "timeline-section-row";
 				sectionRow.dataset.sectionId = entry.sectionId;
 
@@ -581,6 +750,7 @@ export class HobbyPlanner {
 			const { sectionId, slotIndex } = entry;
 
 			const row = document.createElement("div");
+
 			row.className = "timeline-activity-row";
 			row.dataset.sectionId = sectionId;
 			row.dataset.slot = String(slotIndex);
@@ -607,7 +777,8 @@ export class HobbyPlanner {
 					? this.#getHobby(activity.id)
 					: null;
 
-				const hobbyChanged = hobby?.id !== activeHobby?.id;
+				const hobbyChanged =
+					hobby?.id !== activeHobby?.id;
 
 				if (activeHobby && (!hobby || hobbyChanged)) {
 					const bar = document.createElement("div");
@@ -623,6 +794,7 @@ export class HobbyPlanner {
 					bar.dataset.hobbyId = activeHobby.id;
 
 					row.append(bar);
+
 					activeStart = null;
 				}
 
@@ -649,20 +821,24 @@ export class HobbyPlanner {
 	#selectMonth(index) {
 		const months = this.#getTimelineMonths();
 
-		if (!Number.isInteger(index) || index < 0 || index >= months.length) {
+		if (
+			!Number.isInteger(index) ||
+			index < 0 ||
+			index >= months.length
+		) {
 			return;
 		}
 
 		this.selectedIndex = index;
 
-		this.monthRow.querySelectorAll(".timeline-month").forEach(
-			(element, monthIndex) => {
+		this.monthRow
+			.querySelectorAll(".timeline-month")
+			.forEach((element, monthIndex) => {
 				element.classList.toggle(
 					"selected",
 					monthIndex === this.selectedIndex
 				);
-			}
-		);
+			});
 
 		this.#renderSelectedLabels();
 		this.#updateLayout();
@@ -686,12 +862,15 @@ export class HobbyPlanner {
 	#renderSelectedLabels() {
 		this.labelList.replaceChildren();
 
-		const selectedMonth = this.#getTimelineMonths()[this.selectedIndex];
+		const selectedMonth =
+			this.#getTimelineMonths()[this.selectedIndex];
 
 		if (!selectedMonth) return;
 
 		const sections = this.plannerData.data;
-		const order = this.plannerData.order ?? Object.keys(sections);
+
+		const order = this.plannerData.order
+			?? Object.keys(sections);
 
 		for (const sectionId of order) {
 			const section = sections[sectionId];
@@ -699,8 +878,10 @@ export class HobbyPlanner {
 			if (!section) continue;
 
 			const sectionLabel = document.createElement("div");
+
 			sectionLabel.className = "label-section-row";
-			sectionLabel.textContent = section.title ?? `Section ${sectionId}`;
+			sectionLabel.textContent =
+				section.title ?? `Section ${sectionId}`;
 
 			this.labelList.append(sectionLabel);
 
@@ -720,12 +901,14 @@ export class HobbyPlanner {
 					: null;
 
 				const label = document.createElement("div");
+
 				label.className = "lable-row depth-1";
 				label.dataset.sectionId = sectionId;
 				label.dataset.slot = String(slotIndex);
 
 				if (!hobby) {
 					label.classList.add("is-empty");
+
 					label.setAttribute(
 						"aria-label",
 						`Empty slot ${slotIndex + 1}`
@@ -815,29 +998,36 @@ export class HobbyPlanner {
 		this.timelineData.style.width = `${width}px`;
 
 		this.monthRow.style.display = "grid";
+
 		this.monthRow.style.gridTemplateColumns =
 			`repeat(${months.length}, ${MONTH_WIDTH}px)`;
 
 		this.timelineGrid.style.display = "grid";
+
 		this.timelineGrid.style.gridTemplateColumns =
 			`repeat(${months.length}, ${MONTH_WIDTH}px)`;
 
-		this.timelineData.querySelectorAll(".timeline-activity-row").forEach(
-			row => {
+		this.timelineData
+			.querySelectorAll(".timeline-activity-row")
+			.forEach(row => {
 				row.style.display = "grid";
+
 				row.style.gridTemplateColumns =
 					`repeat(${months.length}, ${MONTH_WIDTH}px)`;
-				row.style.width = `${width}px`;
-			}
-		);
 
-		this.timelineData.querySelectorAll(".timeline-section-row").forEach(
-			row => {
 				row.style.width = `${width}px`;
-			}
-		);
+			});
 
-		this.track.style.setProperty("--content-width", `${width}px`);
+		this.timelineData
+			.querySelectorAll(".timeline-section-row")
+			.forEach(row => {
+				row.style.width = `${width}px`;
+			});
+
+		this.track.style.setProperty(
+			"--content-width",
+			`${width}px`
+		);
 	}
 
 	/**
@@ -854,36 +1044,4 @@ export class HobbyPlanner {
 			.toLowerCase()
 			.replace(/[^a-z0-9_-]/g, "-");
 	}
-}
-
-
-class HobbyPlannerElement extends HTMLElement {
-	connectedCallback() {
-		if (this.shadowRoot) return;
-
-		const shadow = this.attachShadow({ mode: "open" });
-		const stylesheet = document.createElement("link");
-		stylesheet.rel = "stylesheet";
-		stylesheet.href = new URL("./index.css", import.meta.url).href;
-
-		const container = document.createElement("div");
-		container.className = "planner-root";
-		shadow.append(stylesheet, container);
-
-		this.planner = new HobbyPlanner(container);
-		this.planner.initialize();
-		this.planner.render();
-	}
-
-	disconnectedCallback() {
-		this.planner?.destroy();
-		this.planner = null;
-	}
-}
-
-export function main(element) {
-	customElements.define("hobby-planner", HobbyPlannerElement);
-	element.append(
-		document.createElement("hobby-planner")
-	)
 }

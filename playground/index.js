@@ -13,7 +13,9 @@ async function main() {
     for (const path of modules) {
         try {
             const module = await import(path);
-            await module.main(element);
+            const Component = module.default;
+            const instance = new Component(element);
+            instance.render();
 
         } catch (error) {
             console.error(`Failed to load module: ${path}`, error);
