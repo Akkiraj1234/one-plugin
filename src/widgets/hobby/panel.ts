@@ -1,4 +1,3 @@
-import { Modal } from "obsidian";
+import { Modal } from 'obsidian';
 
-class HobbyModelWindow extends Modal {
-}
+export class HobbyModelWindow extends Modal {}
