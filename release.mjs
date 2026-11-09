@@ -56,7 +56,7 @@ function fail(message) {
 }
 
 function checkTag(version) {
-	const tag = `refs / tags / ${version} `;
+	const tag = `refs/tags/${version}`;
 
 	const localTag = spawnSync('git', ['rev-parse', '--verify', tag], {
 		stdio: 'ignore',
@@ -242,8 +242,8 @@ console.log('\nPushing release...');
 run('git', [
 	'push',
 	'origin',
-	`HEAD: refs / heads / ${branch} `,
-	`refs / tags / ${releaseVersion} `,
+	`HEAD:refs/heads/${branch}`,
+	`refs/tags/${releaseVersion}`,
 ]);
 
 console.log(

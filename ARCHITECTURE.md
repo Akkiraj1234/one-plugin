@@ -1,76 +1,45 @@
 # Architecture
 
-OnePlugin is an Obsidian plugin built with TypeScript and bundled for the browser environment.
+OnePlugin is an Obsidian desktop and mobile plugin. Its TypeScript application code runs in Obsidian's browser environment; Node.js is used only by development, test, build, and release scripts.
 
-This document describes its runtime structure, storage, and build process.
+## Runtime flow
 
-## 1. Runtime Structure
+1. Obsidian loads `src/main.ts` and calls the plugin's `onload()` method.
+2. The plugin delegates initialization to `AkkiObsidianApp` in `src/core/app.ts`.
+3. The coordinator loads plugin settings, initializes MarkDB, then creates widgets listed in `src/widgets/index.ts`.
+4. On unload, it saves settings and calls each widget's unload hook.
 
-The plugin starts at `src/main.ts`, which manages the Obsidian plugin lifecycle.
+`src/core/types.ts` defines the widget definition, runtime, and settings-context contracts. The settings tab in `src/core/settings_tab.ts` renders settings contributed by registered widgets.
 
-It initializes `AkkiObsidianApp`, responsible for coordinating application startup:
+## Source ownership
 
-1. Loads persisted settings.
-2. Initializes MarkDB.
-3. Loads registered widgets.
+| Location           | Responsibility                                                    |
+| ------------------ | ----------------------------------------------------------------- |
+| `src/main.ts`      | Obsidian plugin lifecycle entry point                             |
+| `src/core/`        | Application coordination, settings, shared types, and persistence |
+| `src/core/markdb/` | MarkDB formats, parsing, validation, registry, and public API     |
+| `src/widgets/`     | User-facing features registered by `src/widgets/index.ts`         |
+| `tests/`           | MarkDB and development-script tests                               |
+| `docs/`            | Developer, user, and architecture-decision documentation          |
 
-### Core
+To add a widget, implement its definition and runtime in `src/widgets/`, then register it in `src/widgets/index.ts`. The app uses that registry for initialization and default settings.
 
-`src/core/` contains shared application functionality, including:
+## Settings and data
 
-- Application coordination.
-- Settings management and UI.
-- Shared types and definitions.
-- MarkDB storage.
+Plugin and widget settings are stored with Obsidian's `loadData()` and `saveData()` APIs. Widget settings are keyed by widget ID; defaults are merged with saved values in `AkkiObsidianApp`.
 
-### Widgets
+Hobby records are stored in the vault through MarkDB. `src/core/markdb/maindb.ts` opens a schema-validated database using Obsidian's vault adapter. The MarkDB package also supports JSON, line-oriented file, and structured database formats; see `src/core/markdb/index.ts` for its public exports.
 
-`src/widgets/` contains the individual features of OnePlugin.
+The GitHub Activity widget fetches public activity from GitHub. Its request and response handling are in `src/widgets/new_tab/api.ts`; its view and actions are in `src/widgets/new_tab/`.
 
-Each widget receives a context containing the plugin instance, application coordinator, and its settings.
+## Build and test
 
-The widget registry at `src/widgets/index.ts` determines which widgets are registered and loaded.
+`esbuild.config.mjs` bundles `src/main.ts` and `src/styles.css` into `build/<package-name>/`, and copies `manifest.json` and `LICENSE`. The package name currently makes the output directory `build/oneplugin-obsidian/`. `npm run dev` watches source files; `npm run build` runs the TypeScript check and a minified production build.
 
-### Data and Persistence
+`deploy-test.mjs` reads `workflow.json`, builds the plugin, and copies files into the configured test-vault plugin directory. Use a dedicated test vault; deployment does not launch Obsidian. See [the development guide](docs/dev/DEVELOPMENT.md) and [package script reference](docs/dev/SCRIPTS.md).
 
-OnePlugin uses two storage mechanisms:
+## Releases
 
-- **Plugin settings:** Persisted through Obsidian's plugin data API.
-- **MarkDB:** Stores hobby data in the vault using Obsidian's vault API.
+`release.mjs` is intended to validate the Git state, run checks, synchronize version metadata, update the changelog, build, create a release commit and tag, and push them. `.github/workflows/release.yml` publishes assets when a tag is pushed.
 
-## 2. Build and Release
-
-The build process is configured in `esbuild.config.mjs`.
-
-It bundles:
-
-- `src/main.ts` into `main.js`.
-- `src/styles.css` into `styles.css`.
-
-It also copies `manifest.json` and `LICENSE` into the production output directory.
-
-The generated files are placed in:
-
-```text
-build/akki-obsidian/
-├── main.js
-├── manifest.json
-├── styles.css
-└── LICENSE
-```
-
-### Development Deployment
-
-Development deployment is handled separately by `deploy-test.mjs`.
-
-It:
-
-1. Builds the plugin.
-2. Copies the required production files into the configured test vault.
-3. Leaves Obsidian launching and reloading to the developer.
-
-### Release Workflow
-
-GitHub Actions handles release publishing when a version tag is pushed.
-
-The workflow verifies version consistency, builds the plugin, generates build provenance, and publishes the generated files as GitHub Release assets.
+The release workflow derives its artifact directory from the package name, matching the build configuration. See [the script reference](docs/dev/SCRIPTS.md) for release command behavior and side effects.

@@ -1,166 +1,55 @@
 # Contributing to OnePlugin
 
-Thank you for your interest in contributing to **OnePlugin**!
+Contributions should be focused, tested, and consistent with the existing Obsidian plugin architecture.
 
-OnePlugin aims to make organising life in Obsidian easier through useful tools and a simple user experience.
+## Before changing code
 
-Whether you're fixing a bug, improving existing functionality, or proposing a new feature, contributions are welcome.
+- Check existing issues and discuss substantial features or behavior changes before implementation.
+- Work on a topic branch rather than directly on `main`.
+- Read [the architecture overview](ARCHITECTURE.md) and [development setup](docs/dev/DEVELOPMENT.md).
 
-Please take a moment to read these guidelines before getting started.
+## Make the change
 
-## Contents
+- Follow the existing ownership boundaries: shared behavior belongs in `src/core/`, and user-facing features belong in `src/widgets/`.
+- Keep application code browser-compatible. Node.js modules belong in development and build tooling, not plugin runtime code.
+- Reuse local patterns and dependencies; validate inputs and handle asynchronous failures.
+- Keep command IDs and persisted settings keys stable after release. Document API or data-format changes and their compatibility impact.
+- Add or update tests under `tests/`. Use existing test conventions and keep filesystem tests isolated in temporary directories.
+- Update the relevant guide under `docs/` when behavior, setup, or workflow changes.
 
-1. [Before You Start](#1-before-you-start)
-2. [Project Structure](#2-project-structure)
-3. [Coding Guidelines](#3-coding-guidelines)
-4. [Development and Testing](#4-development-and-testing)
-5. [Documentation](#5-documentation)
-6. [Pull Requests](#6-pull-requests)
-7. [License](#7-license)
+For example, after changing a MarkDB parser, add a focused test under `tests/markdb/`, then run:
 
----
-
-## 1. Before You Start
-
-Before working on a change:
-
-- Check existing issues to avoid duplicate work.
-- Create an issue describing the bug or proposed feature.
-- Wait for approval before starting implementation.
-- Reference the related issue in your Pull Request.
-
-Please avoid submitting unrelated or unapproved feature changes.
-
-## 2. Project Structure
-
-The project is organized into three main directories:
-
-| Directory | Purpose                          |
-| --------- | -------------------------------- |
-| `src/`    | Plugin source code and features. |
-| `tests/`  | Automated test suites.           |
-| `docs/`   | Project documentation.           |
-
-Maintain the existing structure when adding new files.
-
-For a detailed overview, see [ARCHITECTURE.md](ARCHITECTURE.md).
-
-## 3. Coding Guidelines
-
-Write code that is readable, maintainable, and consistent with the existing codebase.
-
-- Use meaningful names for variables, functions, and classes.
-- Keep functions focused and responsibilities clear.
-- Follow existing naming conventions.
-- Handle errors and invalid inputs appropriately.
-- Reuse existing functionality where practical.
-- Avoid unnecessary dependencies and complexity.
-- Maintain the established project architecture.
-
-### Documentation
-
-Document every function, method, and class using JSDoc.
-
-Include relevant information:
-
-- Purpose and behaviour.
-- Parameters and their types.
-- Return values.
-- Errors thrown, where applicable.
-
-Example:
-
-```js
-/**
- * Retrieves a hobby by its unique identifier.
- *
- * @param {string} hobbyId - Unique hobby identifier.
- * @returns {Object|null} Hobby data, or null if not found.
- */
-get(hobbyId) {
-    // Implementation
-}
+```sh
+npm run test:markdb
+npm run lint
 ```
 
-### API Changes
+For a UI change, also build and deploy to a dedicated test vault:
 
-When modifying an existing API:
+```sh
+npm run deploy-test
+```
 
-- Update its documentation.
-- Explain the reason for the change.
-- Document breaking changes and their impact.
-- Mention relevant API changes in your commit.
+See [the package script reference](docs/dev/SCRIPTS.md) for all commands and their effects. Never test in a personal vault or commit `workflow.json`.
 
-If a change affects release compatibility or versioning, document the required version impact.
+## Code and documentation style
 
-### Architecture
+- Use meaningful names and focused functions; follow the surrounding file's formatting.
+- Document non-obvious public APIs and important behavior with JSDoc or nearby documentation.
+- Keep user-facing text concise and consistent with Obsidian conventions.
+- Do not commit generated files from `build/` or local configuration unless a task explicitly requires them.
+- Record consequential architectural decisions in `docs/adr/`.
 
-- Follow existing architectural patterns.
-- Keep APIs consistent and predictable.
-- Avoid unnecessary dependencies.
-- Consider backward compatibility before introducing breaking changes.
-- Record significant architectural decisions in `docs/adr/`.
+## Pull requests
 
-## 4. Development and Testing
+Before opening a Pull Request:
 
-Test your changes before submitting a Pull Request.
+1. Run the relevant tests, `npm run lint`, and `npm run build`.
+2. Test UI changes in a dedicated Obsidian vault, on desktop and mobile when practical.
+3. Review the diff and remove unrelated changes or local configuration.
+4. Describe what changed, why it changed, how it was tested, and link the related issue.
+5. Include screenshots for visible UI changes.
 
-### Obsidian Testing
+Do not run release or version commands as part of routine development. The release command can commit, tag, and push; see its warning in [the script reference](docs/dev/SCRIPTS.md).
 
-- Use a dedicated test vault.
-- Never test development builds in your personal vault.
-- Follow the setup instructions in [`docs/dev/`](docs/dev/).
-- Verify that your changes work correctly inside Obsidian.
-
-Use the project's development tools to build and deploy your changes.
-
-### Local Configuration
-
-Development uses a local `workflow.json` file.
-
-- Configure it for your own environment.
-- Never commit or push `workflow.json`.
-- Do not include personal machine paths or local configuration in commits.
-
-## 5. Documentation
-
-Keep documentation accurate and consistent with the implementation.
-
-Update the relevant documentation whenever functionality, APIs, or development workflows change.
-
-| Location     | Purpose                                        |
-| ------------ | ---------------------------------------------- |
-| `docs/dev/`  | Development guides and implementation details. |
-| `docs/user/` | User-facing guides and instructions.           |
-| `docs/adr/`  | Architectural decisions.                       |
-
-## 6. Pull Requests
-
-Before submitting:
-
-1. Run the relevant tests.
-2. Run the linter.
-3. Test your changes in a dedicated Obsidian vault.
-4. Update relevant documentation.
-5. Review your changes.
-6. Ensure local configuration and unnecessary generated files are excluded.
-
-### Pull Request Requirements
-
-- Reference the related GitHub issue.
-- Clearly explain what changed and why.
-- Include screenshots for UI changes, where applicable.
-- Keep each Pull Request focused on its intended issue or feature.
-
-Wait for review and approval before merging.
-
-## 7. License
-
-By contributing to OnePlugin, you agree that your contributions will be distributed under the project's **GNU General Public License v3.0 (GPL-3.0)**.
-
-- Only submit code and assets you have the right to contribute.
-- See the [`LICENSE`](LICENSE) file for the complete terms.
-
----
-
-Thank you for helping make OnePlugin better!
+Contributions are distributed under the terms in [LICENSE](LICENSE).

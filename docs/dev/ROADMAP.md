@@ -1,25 +1,47 @@
 # Writing the Roadmap
 
-Keep the root `roadmap.md` focused on planned work and release milestones. Use Markdown headings to group related work and one checkbox per actionable item:
+Keep the root `roadmap.md` focused on planned work and upcoming release milestones. Group related tasks under descriptive Markdown headings and use one checkbox per actionable item.
+
+## Structure
+
+Use headings to organize improvements and release plans:
 
 ```md
 ## Future Improvements
 
 - [ ] Describe a planned improvement.
+- [ ] Describe another planned improvement.
 
 ## Release Roadmap
 
-### 1.4.0 — Feature name
+### 1.4.0 - Feature name
 
-- [ ] Describe a deliverable for this release.
+- [ ] Describe a planned feature.
+- [ ] Describe another deliverable.
 ```
 
-Use `- [ ]` for unfinished work. When an item is complete, change it to `- [x]` (uppercase `X` is also accepted). The nearest heading above the item becomes its changelog category, so keep headings short and meaningful. Tasks without a preceding heading are grouped under `Completed`.
+Use `- [ ]` for planned work and `- [x]` when a task is fully complete. Uppercase `X` is also supported.
 
-To move completed items into the current package version's `changelog.md`, run:
+Keep tasks specific and actionable. Do not mark partially completed work as complete.
+
+## Updating the Changelog
+
+When tasks are complete, transfer them from `roadmap.md` into `changelog.md`:
 
 ```sh
 node update-changlog.mjs
 ```
 
-The updater adds items under the matching version and category, avoids duplicates when rerun, and removes transferred checkboxes from the roadmap. Review the roadmap and changelog diff before committing. Do not mark unfinished or partially delivered work complete.
+Before running the helper, make sure `package.json` contains the version that should receive the completed entries.
+
+The helper:
+
+- Moves checked tasks into the current version's changelog section.
+- Uses the nearest preceding Markdown heading as the changelog category.
+- Places tasks without a preceding heading under `Completed`.
+- Removes transferred tasks from `roadmap.md`.
+- Avoids duplicate entries when run again for the same version.
+
+Review both `roadmap.md` and `changelog.md` after running the helper, then commit the changes together.
+
+For release-related commands and automation, see [Package Scripts](SCRIPTS.md).

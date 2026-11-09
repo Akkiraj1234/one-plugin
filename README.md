@@ -5,7 +5,7 @@
 OnePlugin brings everyday organisation tools into Obsidian — from managing hobbies and planning activities to useful widgets that keep everything within reach.
 
 <escape>[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-0.1.3-informational)
+![Version](https://img.shields.io/github/v/release/Akkiraj1234/one-plugin?label=version)
 ![Status](https://img.shields.io/badge/status-in_development-yellow)</escape>
 
 <escape><!-- Add project screenshot or banner here. --></escape>
@@ -29,13 +29,14 @@ Explore the [User Documentation](docs/user/README.md) for feature guides and ins
 
 Start with these documents:
 
-| Guide                                        | Purpose                               |
-| -------------------------------------------- | ------------------------------------- |
-| [Development Guide](docs/dev/DEVELOPMENT.md) | Setup and development workflow        |
-| [Contributing](CONTRIBUTING.md)              | Contribution guidelines               |
-| [Architecture](ARCHITECTURE.md)              | Understand how OnePlugin works        |
-| [Source Overview](src/README.md)             | Explore the codebase                  |
-| [Architecture Decisions](docs/adr/README.md) | Understand important design decisions |
+| Guide                                        | Purpose                                  |
+| -------------------------------------------- | ---------------------------------------- |
+| [Development Guide](docs/dev/DEVELOPMENT.md) | Setup and development workflow           |
+| [Package Scripts](docs/dev/SCRIPTS.md)       | Command examples, arguments, and effects |
+| [Contributing](CONTRIBUTING.md)              | Contribution guidelines                  |
+| [Architecture](ARCHITECTURE.md)              | Understand how OnePlugin works           |
+| [Documentation Index](docs/README.md)        | Browse developer and user guides         |
+| [Architecture Decisions](docs/adr/README.md) | Understand important design decisions    |
 
 ## 🛠️ Development
 
@@ -50,13 +51,7 @@ npm run deploy-test
 
 Configure your local `workflow.json` before deployment. See the [Development Guide](docs/dev/DEVELOPMENT.md) for setup instructions.
 
-| Command               | Purpose                |
-| --------------------- | ---------------------- |
-| `npm run dev`         | Development watch mode |
-| `npm run build`       | Production build       |
-| `npm run deploy-test` | Deploy to test vault   |
-| `npm test`            | Run tests              |
-| `npm run lint`        | Run ESLint             |
+See the [Package Scripts guide](docs/dev/SCRIPTS.md) for all commands, examples, supported arguments, and side effects.
 
 ## 🤝 Contributing
 
