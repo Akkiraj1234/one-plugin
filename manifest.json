@@ -1,7 +1,7 @@
 {
 	"id": "oneplugin",
 	"name": "OnePlugin",
-	"version": "0.1.4",
+	"version": "0.1.5",
 	"minAppVersion": "1.1.13",
 	"description": "A personal life-management toolkit for organising hobbies, activities, and everyday routines in Obsidian.",
 	"author": "Akhand Raj",
