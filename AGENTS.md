@@ -1,245 +1,93 @@
 # AGENTS.md
 
-Instructions for AI agents working on OnePlugin.
+Instructions for AI coding agents working in OnePlugin. Treat these as repository requirements whenever you inspect, edit, test, or document this project.
 
-## 1. Read Before Working
+## Start Here
 
-Before making changes, read:
+Before making changes, read the relevant parts of:
 
-- `CONTRIBUTING.md` — Contribution guidelines.
-- `docs/dev/DEVELOPMENT.md` — Development setup and workflow.
-- `ARCHITECTURE.md` — Project architecture.
+- [Contributing guide](CONTRIBUTING.md) for code, testing, and pull request expectations.
+- [Development guide](docs/dev/DEVELOPMENT.md) for environment setup and test-vault use.
+- [Architecture overview](ARCHITECTURE.md) for runtime structure and code ownership.
+- [Package script reference](docs/dev/SCRIPTS.md) before choosing an npm command.
 
-Follow these documents when working on the project.
+Read the owning implementation and its nearby tests before editing. Follow the current code and documentation if an older example or assumption differs from them. Do not invent a standard Obsidian sample-plugin layout for this repository.
 
-## 2. Project Overview
+## Project Facts
 
-OnePlugin is an Obsidian community plugin.
+OnePlugin is an Obsidian desktop and mobile plugin. Runtime code is TypeScript and browser-compatible JavaScript built with esbuild. Node.js is for development, test, build, and release tooling, not plugin runtime modules.
 
-- Target: Obsidian desktop and mobile.
-- Platform: Obsidian Plugin API.
-- Build: TypeScript/JavaScript bundled using esbuild.
-- Output: `main.js`, `manifest.json` and optional `styles.css`.
+- `src/main.ts` is the Obsidian plugin lifecycle entry point.
+- `src/core/` owns app coordination, settings, shared types, and MarkDB integration.
+- `src/widgets/` contains features; `src/widgets/index.ts` is the widget registry.
+- `tests/markdb/` contains MarkDB tests; `tests/scripts/` contains Node tooling tests.
+- `docs/dev/`, `docs/user/`, and `docs/adr/` contain developer guides, user documentation, and architecture decision records.
+- `esbuild.config.mjs` outputs generated files under `build/<package-name>/` (currently `build/oneplugin-obsidian/`). Never hand-edit generated output.
 
-Follow the existing implementation instead of assuming a standard Obsidian sample plugin structure.
+For detailed ownership and lifecycle behavior, use [ARCHITECTURE.md](ARCHITECTURE.md).
 
-## 3. Project Structure
+## Required Working Practices
 
-| Directory      | Purpose                              |
-| -------------- | ------------------------------------ |
-| `src/core/`    | Core logic and shared functionality. |
-| `src/widgets/` | Individual widgets.                  |
-| `src/main.ts`  | Plugin entry point and lifecycle.    |
-| `docs/`        | Project documentation.               |
-| `tests/`       | Tests.                               |
-| `build/`       | Generated build files.               |
+1. Establish the concrete task and inspect the relevant files, tests, and current Git changes before editing.
+2. Keep changes scoped to the request. Preserve pre-existing user changes; do not revert, overwrite, or stage them.
+3. Follow existing project patterns and the requirements in [CONTRIBUTING.md](CONTRIBUTING.md). Use meaningful names, focused functions, browser-compatible runtime APIs, and existing dependencies where possible.
+4. Add or update tests for behavior changes. Keep tests in `tests/` and use temporary directories for filesystem tests.
+5. Update the relevant documentation when commands, APIs, architecture, user behavior, or development workflow changes.
+6. Run the narrowest relevant check first. For TypeScript or plugin changes, use the appropriate npm scripts below; report any checks you could not run and do not claim unrun checks passed.
+7. Finish with a concise account of the files changed, checks run, and any remaining warnings or risks.
 
-Maintain the existing structure. Do not reorganize directories without a clear reason.
+If requirements are ambiguous in a way that could change public behavior, persisted data, compatibility, or release state, ask before choosing an irreversible interpretation. Otherwise, make the smallest reasonable implementation and state the assumption.
 
-## 4. Before Making Changes
+## Code and Style
 
-- Check whether a GitHub issue exists for the requested work.
-- Do not start unapproved features or bug fixes.
-- Understand the existing implementation before modifying it.
-- Check how affected modules interact.
-- Reuse existing functionality.
-- Avoid unrelated changes.
+- Match the formatting and naming conventions of the neighboring files. TypeScript application code uses the existing types and module structure; do not convert it to a generic JavaScript widget scaffold.
+- Keep functions focused. Handle invalid input and asynchronous failures at the boundary that owns them.
+- Document public or non-obvious APIs with concise JSDoc, following nearby source conventions.
+- Avoid new abstractions, dependencies, broad refactors, or unrelated cleanup unless the task needs them.
+- Do not use Node.js built-ins in `src/` application code. Use Obsidian APIs for vault and plugin behavior.
+- Register Obsidian commands with `addCommand()`, keep released command IDs stable, and register lifecycle-bound events using Obsidian cleanup helpers.
+- Consider desktop and mobile behavior, keep startup work light, and avoid unnecessary vault scans or large retained data.
+- Keep UI text short and sentence-case. Use Obsidian's UI components and DOM helpers where appropriate. Follow existing widget CSS naming and selectors; avoid generic global selectors and styles that leak into other widgets. Check the owning widget and `src/styles.css` before changing UI styling.
+- Avoid unsafe HTML insertion and direct DOM patterns that conflict with the project's lint rules. Prefer Obsidian DOM helpers and safe text APIs.
 
-Ask before making assumptions when requirements are unclear.
+## Security and Privacy
 
-## 5. Coding Guidelines
+- Prefer local operation. Make network requests only for a clear feature requirement, and document external data use.
+- Never add hidden telemetry, transmit vault content without explicit user consent, execute remote code, or access files outside the vault without a clear, permitted need.
+- Do not expose credentials, tokens, private vault data, or local configuration in logs, docs, tests, or commits.
+- Use a dedicated Obsidian test vault. Never deploy to a personal vault.
 
-OnePlugin prioritizes simple, readable and maintainable code.
+## Documentation Rules
 
-- Document every class, function and method using JSDoc.
-- Use meaningful names.
-- Keep functions focused on one responsibility.
-- Avoid unnecessary abstractions and dependencies.
-- Avoid duplicate code.
-- Handle errors and invalid inputs.
-- Follow existing naming conventions.
-- Keep module responsibilities separate.
-- Prefer `async/await` and handle asynchronous errors.
+- Keep documentation factual and aligned with current source behavior.
+- Use [docs/README.md](docs/README.md) to navigate the documentation set.
+- Put setup and command instructions in `docs/dev/`; user-facing feature guidance in `docs/user/`; significant architectural decisions in `docs/adr/`.
+- Link to the owning source file when implementation detail needs a source of truth. Include a short explanation rather than duplicating large code descriptions.
+- Verify relative Markdown links and command names after documentation edits.
 
-### API Changes
+## npm Commands
 
-Whenever an existing API changes:
+Use npm scripts rather than recreating their commands manually. Run commands from the repository root:
 
-- Update its documentation.
-- Explain why the change was necessary.
-- Mention the API change and version in the commit.
-- Document breaking changes.
+- `npm run test:markdb` — test MarkDB behavior.
+- `npm run test:scripts` — test development scripts.
+- `npm test` — run both test groups.
+- `npm run lint` — run ESLint.
+- `npm run build` — type-check and create the minified production bundle.
+- `npm run dev` — run the esbuild watch process; this is long-running.
+- `npm run deploy-test` — build and copy to the configured dedicated test vault; it can prompt to create `workflow.json`.
+- `npm run check` — run lint and tests; it does not run the production build.
 
-Do not silently change existing APIs.
+For normal validation, run the focused test first, then `npm run lint`, `npm test`, and `npm run build` as applicable. Run `npm run deploy-test` only for UI or Obsidian integration checks and only after confirming the configured vault is a dedicated test vault. See [docs/dev/SCRIPTS.md](docs/dev/SCRIPTS.md) for arguments and side effects.
 
-## 6. Widget Guidelines
+## Versioning and Release Safety
 
-Every widget should follow this structure:
+Do not run `npm run release`, `npm version`, or other version/release commands unless the user explicitly asks for a release or version change. The release script can modify version files, update the roadmap/changelog, create a commit and tag, and push to `origin`.
 
-```text
-WidgetName/
-├── index.js
-└── index.css
-```
+Do not run `git add`, commit, tag, push, create branches, or alter Git history unless explicitly requested. Never commit `workflow.json` or generated build output. Preserve unrelated changes in the working tree.
 
-### CSS
+When a user explicitly requests release work, inspect the current release helper and workflow first, explain the operations that modify or publish remote state, and verify version consistency and built assets before proceeding. The authoritative command details are in [docs/dev/SCRIPTS.md](docs/dev/SCRIPTS.md).
 
-- Import the stylesheet through `index.css`.
-- Prefix CSS classes with the widget ID.
-- Avoid generic class names.
-- Prevent styles from affecting other widgets.
+## Completion Standard
 
-Example:
-
-```css
-.HManager-panel-container {
-}
-.HManager-panel-header {
-}
-```
-
-### Shadow DOM
-
-- Most root-level widgets do not use Shadow DOM.
-- Use widget-specific CSS prefixes for these widgets.
-- Independent widgets may use Shadow DOM when appropriate.
-
-## 7. Obsidian Development Guidelines
-
-Follow the official Obsidian API and plugin guidelines.
-
-- Use `this.addCommand()` for user-facing commands.
-- Keep command IDs stable after release.
-- Use `this.loadData()` and `this.saveData()` for plugin settings and data where appropriate.
-- Register event listeners using Obsidian's registration helpers.
-- Clean up DOM events, intervals and other listeners when the plugin unloads.
-- Avoid desktop-only APIs unless required.
-- Consider mobile compatibility.
-- Keep plugin startup lightweight.
-- Defer expensive operations when possible.
-
-References:
-
-- [Obsidian API](https://docs.obsidian.md)
-- [Developer Policies](https://docs.obsidian.md/Developer+policies)
-- [Plugin Guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines)
-- [Obsidian Sample Plugin](https://github.com/obsidianmd/obsidian-sample-plugin)
-
-## 8. Code Restrictions
-
-- Do not use Node.js modules in application code.
-- Do not introduce unnecessary external dependencies.
-- Prefer browser-compatible packages.
-- Bundle runtime dependencies into the plugin build.
-- Do not modify generated files inside `build/`.
-- Do not modify `.gitignore` or root configuration files unless required.
-- Do not change build or release scripts without approval.
-
-Node.js modules are allowed in development and build scripts.
-
-## 9. Security and Privacy
-
-Follow Obsidian's developer policies.
-
-- Prefer local and offline operation.
-- Make network requests only when required.
-- Do not introduce hidden telemetry.
-- Never execute remote code.
-- Do not collect or transmit vault data without a clear need and user consent.
-- Clearly document external services and data usage.
-- Do not access files outside the vault unless explicitly required and permitted.
-
-## 10. UI and Performance
-
-### UI Guidelines
-
-- Use clear and short UI text.
-- Prefer sentence case.
-- Keep buttons and labels consistent.
-- Use clear action-oriented descriptions.
-- Avoid unnecessary UI elements.
-
-### Performance
-
-- Keep plugin startup lightweight.
-- Avoid unnecessary vault scans.
-- Batch disk operations where possible.
-- Debounce expensive operations when needed.
-- Avoid unnecessarily large in-memory structures.
-
-## 11. Manifest and Releases
-
-When modifying `manifest.json`:
-
-- Keep the plugin ID unchanged.
-- Maintain valid version numbers using Semantic Versioning.
-- Keep `minAppVersion` accurate.
-- Ensure required manifest fields are present.
-
-Do not run version or release commands unless explicitly requested.
-
-Release requirements:
-
-- Keep `manifest.json` and `versions.json` consistent.
-- Use the manifest version as the Git tag.
-- Include `main.js`, `manifest.json` and optional `styles.css` in releases.
-
-## 12. Documentation
-
-Update documentation whenever implementation changes require it.
-
-- `docs/dev/` — Developer documentation.
-- `docs/user/` — User documentation.
-- `docs/adr/` — Architectural decisions.
-
-Keep documentation consistent with the implementation. Do not document features that do not exist.
-
-## 13. Testing
-
-Before considering a change complete:
-
-1. Run relevant tests using `npm test`.
-2. Run `npm run lint`.
-3. Build using `npm run build`.
-4. Test UI changes using `npm run deploy-test`.
-
-Always use a dedicated Obsidian test vault.
-
-Do not claim tests passed unless they were actually executed.
-
-Where possible, test on both desktop and mobile.
-
-## 14. Git Guidelines
-
-- Work on the appropriate issue branch.
-- Do not commit directly to `main`.
-- Do not modify unrelated files.
-- Never commit `workflow.json`.
-- Do not commit generated build files.
-- Keep commit messages clear.
-- Reference the related issue in commits and pull requests.
-
-Do not run version or release commands unless explicitly requested.
-
-## 15. Agent Rules
-
-### Do
-
-- Understand existing code before changing it.
-- Follow the existing architecture.
-- Reuse existing implementations.
-- Keep changes focused.
-- Update relevant documentation.
-- Test changes before considering them complete.
-
-### Don't
-
-- Introduce unnecessary abstractions.
-- Duplicate existing functionality.
-- Remove existing features without approval.
-- Change APIs without documentation.
-- Modify unrelated configuration files.
-- Make assumptions about undocumented behavior.
-- Claim successful tests without running them.
-
-**Keep OnePlugin simple, consistent and maintainable.**
+A task is complete when the requested change is implemented, relevant automated checks have been run, documentation is current where needed, and the final response distinguishes passed checks from warnings, failures, or checks not run.
