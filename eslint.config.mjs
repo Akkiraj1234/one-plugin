@@ -23,6 +23,7 @@ export default defineConfig(
 		'deploy-test.mjs',
 		'esbuild.config.mjs',
 		'release.mjs',
+		'release-notes.mjs',
 		'update-changlog.mjs',
 		'version-bump.mjs',
 

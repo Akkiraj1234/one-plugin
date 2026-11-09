@@ -37,7 +37,7 @@ Before running the helper, make sure `package.json` contains the version that sh
 The helper:
 
 - Moves checked tasks into the current version's changelog section.
-- Uses the nearest preceding Markdown heading as the changelog category.
+- Uses the nearest preceding Markdown heading as the changelog category, except `Future Improvements`, whose completed tasks are listed as general changes without a subheading.
 - Places tasks without a preceding heading under `Completed`.
 - Removes transferred tasks from `roadmap.md`.
 - Avoids duplicate entries when run again for the same version.

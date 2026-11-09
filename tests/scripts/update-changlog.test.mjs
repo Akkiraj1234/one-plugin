@@ -81,6 +81,28 @@ test('addToChangelog creates a version section and grouped items in first-seen o
     ].join('\n'));
 });
 
+test('Future Improvements items are written as changes without a section heading', () => {
+    const changelog = addToChangelog('# Changelog\n', '1.2.3', [
+        { section: 'Future Improvements', item: 'Completed maintenance task' },
+        { section: 'Future Improvements', item: 'Another completed task' },
+        { section: 'Fixes', item: 'Correct behavior' },
+    ]);
+
+    assert.equal(changelog, [
+        '# Changelog',
+        '',
+        '## 1.2.3',
+        '',
+        '- Completed maintenance task',
+        '- Another completed task',
+        '',
+        '### Fixes',
+        '- Correct behavior',
+        '',
+    ].join('\n'));
+    assert.doesNotMatch(changelog, /### Future Improvements/);
+});
+
 test('addToChangelog updates bracketed version headings, deduplicates items, and preserves older releases', () => {
     const changelog = [
         '# Changelog',
@@ -145,6 +167,19 @@ test('updateChangelog creates a missing changelog and removes completed roadmap 
     assert.equal(await readFile(path.join(root, 'roadmap.md'), 'utf8'),
         '# Roadmap\n## Improvements\n- [ ] Later\n');
     assert.deepEqual(logs, ['Moved 1 completed roadmap item(s) to changelog v1.2.3.']);
+});
+
+test('updateChangelog records Future Improvements as plain changes', async context => {
+    const root = await createProject(context, {
+        roadmap: '# Roadmap\n### Future Improvements\n- [x] Improve release automation\n',
+        changelog: '# Changelog\n',
+    });
+
+    assert.equal(await updateChangelog({ root, log: () => { } }), 0);
+    const changelog = await readFile(path.join(root, 'changelog.md'), 'utf8');
+    assert.match(changelog, /## 1\.2\.3\n\n- Improve release automation/);
+    assert.doesNotMatch(changelog, /### Future Improvements/);
+    assert.equal(await readFile(path.join(root, 'roadmap.md'), 'utf8'), '# Roadmap\n### Future Improvements\n');
 });
 
 test('updateChangelog does not write files or create a changelog when there are no completed items', async context => {

@@ -118,18 +118,21 @@ function addToChangelog(changelog, version, completed) {
     }
 
     for (const [section, items] of groups) {
+        const isFutureImprovements = section.trim().toLowerCase() === 'future improvements';
         const sectionHeading = `### ${section}`;
 
         let sectionIndex = -1;
 
-        for (
-            let index = versionIndex + 1;
-            index < versionEnd;
-            index += 1
-        ) {
-            if (lines[index].trim() === sectionHeading) {
-                sectionIndex = index;
-                break;
+        if (!isFutureImprovements) {
+            for (
+                let index = versionIndex + 1;
+                index < versionEnd;
+                index += 1
+            ) {
+                if (lines[index].trim() === sectionHeading) {
+                    sectionIndex = index;
+                    break;
+                }
             }
         }
 
@@ -143,6 +146,16 @@ function addToChangelog(changelog, version, completed) {
         });
 
         if (newItems.length === 0) continue;
+
+        if (isFutureImprovements) {
+            let insertAt = versionIndex + 1;
+            if (!lines[insertAt]?.trim()) insertAt += 1;
+            while (/^\s*-\s+/.test(lines[insertAt] ?? '')) insertAt += 1;
+
+            lines.splice(insertAt, 0, ...newItems.map((item) => `- ${item}`));
+            versionEnd += newItems.length;
+            continue;
+        }
 
         if (sectionIndex === -1) {
             const addition = [

@@ -56,7 +56,7 @@ npm run release -- 1.2.0
 
 The release script runs checks, updates version metadata and the changelog, builds, creates a release commit and tag, and pushes them. **Only run it for an approved release with a clean Git working tree.**
 
-The release helper uses fully qualified Git refs when checking and pushing tags. The workflow derives `BUILD_DIR` from the package name and uses it consistently for artifact validation, provenance attestation, and release uploads. A successful release-tag push triggers GitHub Actions to publish the assets.
+The release helper uses fully qualified Git refs when checking and pushing tags. The workflow derives `BUILD_DIR` from the package name and uses it consistently for artifact validation, provenance attestation, and release uploads. It extracts the matching version section from `changelog.md` with `release-notes.mjs` and uses that content as the GitHub release description.
 
 ## Roadmap helper
 
@@ -75,5 +75,6 @@ The helper moves completed tasks into `changelog.md` under the current package v
 - [`deploy-test.mjs`](../../deploy-test.mjs) — test deployment.
 - [`version-bump.mjs`](../../version-bump.mjs) — version synchronization.
 - [`release.mjs`](../../release.mjs) — release automation.
+- [`release-notes.mjs`](../../release-notes.mjs) — extract the current version's changelog section for release notes.
 - [`update-changlog.mjs`](../../update-changlog.mjs) — changelog helper.
 - [Release workflow](../../.github/workflows/release.yml) — GitHub release publishing.
