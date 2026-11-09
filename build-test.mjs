@@ -10,8 +10,7 @@ import { fileURLToPath } from "node:url";
  * @param {string} message - Error message to display.
  */
 function fail(message) {
-	console.error(`Build-test failed: ${message}`);
-	process.exit(1);
+	throw new Error(message);
 }
 
 /**
@@ -39,49 +38,54 @@ async function checkObsidianPath(vaultPath, pluginid) {
  * Prompts for a test vault path and creates or overwrites workflow.json.
  * @param {string} configPath - Destination path for workflow.json.
  * @param {string} pluginid - Plugin ID.
+ * @param {() => Promise<string>} [prompt] - Function that prompts for the vault path.
  * @returns {Promise<Object|null>} Workflow configuration, or null if cancelled.
  */
-async function createWorkflowJson(configPath, pluginid) {
+async function createWorkflowJson(configPath, pluginid, prompt = promptForVaultPath) {
+	console.log("Could not find a valid workflow.json.\n");
+	console.log("IMPORTANT: Please do not use your actual working vault.");
+	console.log("Create a separate test vault and provide its path.\n");
+
+	const answer = await prompt();
+	if (!answer.trim()) return null;
+
+	const vaultPath = path.resolve(answer.trim());
+	const pluginPath = await checkObsidianPath(vaultPath, pluginid);
+
+	if (!pluginPath) {
+		console.error("Invalid Obsidian vault path.");
+		return null;
+	}
+
+	await mkdir(pluginPath, { recursive: true });
+
+	const workflow = {
+		testVaultPath: vaultPath,
+		pluginPath: pluginPath
+	};
+
+	await writeFile(
+		configPath,
+		JSON.stringify(workflow, null, 4),
+		"utf-8"
+	);
+
+	console.log("workflow.json created successfully!");
+	return workflow;
+}
+
+/**
+ * Prompts for a test vault path using standard input.
+ * @returns {Promise<string>} Answer entered by the user.
+ */
+async function promptForVaultPath() {
 	const rl = createInterface({
 		input: process.stdin,
 		output: process.stdout,
 	});
 
 	try {
-		console.log("Could not find a valid workflow.json.\n");
-		console.log("IMPORTANT: Please do not use your actual working vault.");
-		console.log("Create a separate test vault and provide its path.\n");
-
-		const answer = await rl.question(
-			"Please provide test Vault Path [enter to exit]: "
-		);
-
-		if (!answer.trim()) return null;
-
-		const vaultPath = path.resolve(answer.trim());
-		const pluginPath = await checkObsidianPath(vaultPath, pluginid);
-
-		if (!pluginPath) {
-			console.error("Invalid Obsidian vault path.");
-			return null;
-		}
-
-		await mkdir(pluginPath, { recursive: true });
-
-		const workflow = {
-			testVaultPath: vaultPath,
-			pluginPath: pluginPath
-		};
-
-		await writeFile(
-			configPath,
-			JSON.stringify(workflow, null, 4),
-			"utf-8"
-		);
-
-		console.log("workflow.json created successfully!");
-		return workflow;
-
+		return await rl.question("Please provide test Vault Path [enter to exit]: ");
 	} finally {
 		rl.close();
 	}
@@ -110,9 +114,10 @@ function validateConfig(config) {
  * Loads workflow.json or prompts to create a new configuration if invalid or missing.
  * @param {string} configPath - Path to workflow.json.
  * @param {string} pluginid - Plugin ID.
+ * @param {(configPath: string, pluginid: string) => Promise<Object|null>} [createConfig] - Configuration setup function.
  * @returns {Promise<Object|null>} Loaded or created workflow configuration.
  */
-async function load_config(configPath, pluginid) {
+async function load_config(configPath, pluginid, createConfig = createWorkflowJson) {
 	let config;
 
 	try {
@@ -121,13 +126,13 @@ async function load_config(configPath, pluginid) {
 
 	} catch (error) {
 		if (error.code === "ENOENT" || error instanceof SyntaxError) {
-			return await createWorkflowJson(configPath, pluginid);
+			return await createConfig(configPath, pluginid);
 		}
 		throw error;
 	}
 
 	if (!validateConfig(config)) {
-		return await createWorkflowJson(configPath, pluginid);
+		return await createConfig(configPath, pluginid);
 	}
 
 	return config;
@@ -158,12 +163,13 @@ async function loadManifest(manifestPath) {
 /**
  * Runs the production build and returns the plugin output directory.
  * @param {string} projectDir - Plugin project root directory.
+ * @param {typeof spawnSync} [runBuild] - Function that runs the build command.
  * @returns {Promise<string>} Build output directory.
  */
-async function build_One_Plugin(projectDir) {
+async function build_One_Plugin(projectDir, runBuild = spawnSync) {
 	console.log("Building OnePlugin...");
 
-	const build = spawnSync(
+	const build = runBuild(
 		process.platform === "win32" ? "cmd.exe" : "npm",
 		process.platform === "win32"
 			? ["/d", "/s", "/c", "npm run build"]
@@ -185,6 +191,9 @@ async function build_One_Plugin(projectDir) {
 	const packageJson = JSON.parse(
 		await readFile(path.join(projectDir, "package.json"), "utf-8")
 	);
+	if (typeof packageJson.name !== "string" || !packageJson.name.trim()) {
+		fail("package.json is missing a valid name.");
+	}
 
 	return path.join(projectDir, "build", packageJson.name);
 }
@@ -236,10 +245,23 @@ async function main() {
 	await copyFileToDestination(buildPath, config.pluginPath);
 
 	console.log(
-		"Obsidian is already running. Reload OnePlugin in Obsidian to apply the changes."
+		"Reload OnePlugin in Obsidian to apply the changes."
 	);
 }
 
+export {
+	build_One_Plugin,
+	checkObsidianPath,
+	copyFileToDestination,
+	createWorkflowJson,
+	load_config,
+	loadManifest,
+	validateConfig,
+};
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	main().catch(error => fail(error.message));
+	main().catch(error => {
+		console.error(`Build-test failed: ${error.message}`);
+		process.exitCode = 1;
+	});
 }
