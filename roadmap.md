@@ -6,31 +6,6 @@ This document outlines the planned development and release milestones for One-Pl
 
 ## Future Improvements
 
-- [x] Restructure the development and deployment scripts; rename `build-test.mjs` to `deploy-test.mjs`.
-- [x] Add ESLint configuration and improve linting scope.
-- [x] Fix TypeScript configuration issues and warnings.
-- [x] Update esbuild configuration and package scripts.
-- [x] Improve local test-vault configuration and deployment workflow.
-- [x] Move MarkDB tests into a dedicated `tests/markdb/` directory.
-- [x] Add automated tests for the deployment script.
-- [x] Add tests for changelog generation.
-- [x] Improve existing tooling and test coverage.
-- [x] Reorganise MarkDB test structure.
-- [x] Update Hobby Manager UI and styling.
-- [x] Improve Hobby Planner and Hobby Manager playground components.
-- [x] Improve version synchronization between `package.json`, `manifest.json`, and `versions.json`.
-- [x] Update release automation and GitHub release workflow.
-- [x] Add automatic changelog generation from completed roadmap tasks.
-- [x] Update `AGENTS.md` for the project structure and development workflow.
-- [x] Rewrite the root README and add a dynamic release version badge.
-- [x] Add the project documentation index.
-- [x] Add architecture and package script documentation.
-- [x] Improve development setup and contribution guidelines.
-- [x] Add roadmap authoring instructions.
-- [x] Update user documentation and architecture decision indexes.
-- [x] Remove the outdated `src/README.md`.
-- [x] Review and correct documentation cross-references.
-
 ## Release Roadmap
 
 ### 1.0.0 — Foundation

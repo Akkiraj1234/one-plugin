@@ -1,6 +1,6 @@
 {
 	"name": "oneplugin-obsidian",
-	"version": "0.1.3",
+	"version": "0.1.4",
 	"description": "An all-in-one Obsidian plugin to help users organise their lives.",
 	"main": "main.js",
 	"type": "module",
