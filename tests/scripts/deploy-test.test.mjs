@@ -12,7 +12,7 @@ import {
     load_config,
     loadManifest,
     validateConfig,
-} from "../../build-test.mjs";
+} from "../../deploy-test.mjs";
 
 
 /**
@@ -21,7 +21,7 @@ import {
  * @returns {Promise<string>} Temporary directory path.
  */
 async function createTestDirectory(context) {
-    const directory = await mkdtemp(path.join(os.tmpdir(), "oneplugin-build-test-"));
+    const directory = await mkdtemp(path.join(os.tmpdir(), "oneplugin-deploy-test-"));
     context.after(() => rm(directory, { recursive: true, force: true }));
     return directory;
 }

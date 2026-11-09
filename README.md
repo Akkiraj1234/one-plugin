@@ -1,105 +1,73 @@
 # OnePlugin
 
-> **An all-in-one Obsidian plugin for organising everyday life.**
+**Organise your life, right inside Obsidian.**
 
-<!-- Project logo/banner placeholder: add an approved project image here when available. -->
+OnePlugin brings everyday organisation tools into Obsidian — from managing hobbies and planning activities to useful widgets that keep everything within reach.
 
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+<escape>[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 ![Version](https://img.shields.io/badge/version-0.1.3-informational)
-![Status](https://img.shields.io/badge/status-in_development-yellow)
+![Status](https://img.shields.io/badge/status-in_development-yellow)</escape>
 
-OnePlugin brings personal organisation tools into Obsidian. The project is in active development; feature details and setup instructions will grow alongside the plugin.
+<escape><!-- Add project screenshot or banner here. --></escape>
 
-## Contents
+## ✨ What can you do with OnePlugin?
 
-- [Features](#features)
-- [Preview](#preview)
-- [Installation](#installation)
-- [Documentation](#documentation)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
+- **Hobby Management** — Organise hobbies and track activities.
+- **Hobby Planning** — Plan activities and follow your progress.
+- **New Tab** — A configurable workspace with useful widgets.
+- **GitHub Activity** — View public GitHub activity from your new tab.
 
-## Features
+<text color="secondary" size="sm">OnePlugin is actively developing. Features and interfaces are still evolving.</text>
 
-### Hobby tools
+## 🚀 Get Started
 
-The current source includes hobby management and planning modules. Their user-facing workflows are still being developed.
+**Using OnePlugin?**
 
-### New tab
+Explore the [User Documentation](docs/user/README.md) for feature guides and instructions.
 
-The current source includes a configurable new tab widget. Setup and usage instructions will be documented as this feature matures.
+**Want to contribute or explore the code?**
 
-### GitHub activity
+Start with these documents:
 
-The new tab includes a GitHub activity widget. When opened or refreshed with a username configured, it requests that account's public events directly from GitHub's public API. The plugin does not send vault content, collect analytics, or store a GitHub token.
+| Guide                                        | Purpose                               |
+| -------------------------------------------- | ------------------------------------- |
+| [Development Guide](docs/dev/DEVELOPMENT.md) | Setup and development workflow        |
+| [Contributing](CONTRIBUTING.md)              | Contribution guidelines               |
+| [Architecture](ARCHITECTURE.md)              | Understand how OnePlugin works        |
+| [Source Overview](src/README.md)             | Explore the codebase                  |
+| [Architecture Decisions](docs/adr/README.md) | Understand important design decisions |
 
-## Preview
+## 🛠️ Development
 
-<!-- Screenshot/demo placeholder: add genuine OnePlugin screenshots or a short demo when available. -->
+Requirements: Node.js, npm, and a dedicated Obsidian test vault.
 
-_Screenshots and demo coming soon._
-
-## Installation
-
-OnePlugin does not yet have a published installation guide or community listing. For development builds, follow the [developer setup](#development) and use a dedicated test vault.
-
-## Documentation
-
-- [Feature notes](docs/everything.md)
-- [Developer documentation](docs/dev/README.md)
-- [User documentation](docs/user/README.md)
-- [Architecture decision records](docs/adr/README.md)
-
-## Development
-
-### Requirements
-
-- Node.js 18 or newer
-- npm
-- A dedicated Obsidian test vault
-
-Install dependencies with `npm install`. Create a local `workflow.json` in the repository root:
-
-```json
-{
-	"testVaultPath": "C:/path/to/your/test-vault"
-}
+```bash
+git clone https://github.com/Akkiraj1234/one-plugin.git
+cd one-plugin
+npm install
+npm run deploy-test
 ```
 
-`workflow.json` is local configuration and is ignored by Git. Keep it out of commits.
+Configure your local `workflow.json` before deployment. See the [Development Guide](docs/dev/DEVELOPMENT.md) for setup instructions.
 
-### Available scripts
+| Command               | Purpose                |
+| --------------------- | ---------------------- |
+| `npm run dev`         | Development watch mode |
+| `npm run build`       | Production build       |
+| `npm run deploy-test` | Deploy to test vault   |
+| `npm test`            | Run tests              |
+| `npm run lint`        | Run ESLint             |
 
-| Command                                    | What it does                                                                                                                                                                       |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`                              | Starts esbuild in watch mode and rebuilds when source files change.                                                                                                                |
-| `npm run build`                            | Checks TypeScript and creates production plugin files under `build/oneplugin-obsidian/`.                                                                                           |
-| `npm run build-test`                       | Runs the production build, copies its plugin files into the configured test vault, then tries to open that vault in Obsidian. If Obsidian is already open, reload OnePlugin there. |
-| `npm test`                                 | Runs the MarkDB test suites.                                                                                                                                                       |
-| `npm run lint`                             | Checks the project with ESLint.                                                                                                                                                    |
-| `npm version patch` (or `minor` / `major`) | Updates the package version and synchronizes `manifest.json` and `versions.json`.                                                                                                  |
-| `npm run release`                          | Checks lint and build, creates a versioned Git commit and tag, then pushes them to `origin` to start the release workflow. Use only when preparing a release.                      |
+## 🤝 Contributing
 
-To test a development build, run `npm run build-test`. The script creates the plugin folder if needed and only copies `main.js`, `manifest.json`, and `styles.css` when present; it does not remove other vault files.
+Found a bug or have an idea? Contributions are welcome!
 
-### Project structure
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) and discuss your changes through a GitHub issue before implementation.
 
-```text
-src/                 Plugin source code
-  core/              Shared plugin logic and MarkDB implementation
-  widgets/           User-facing widget modules
-playground/          Standalone UI experiments and prototypes
-docs/                User, developer, and architecture documentation
-.github/workflows/   GitHub Actions automation
-```
+## 📄 License
 
-For more detail, see [the source overview](src/README.md) and [the playground notes](playground/README.md).
+OnePlugin is open source under the [GNU GPL-3.0 License](LICENSE).
 
-## Contributing
+---
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. Keep changes focused, update relevant documentation, and never include local `workflow.json` configuration.
-
-## License
-
-OnePlugin is distributed under the [GNU General Public License v3.0](LICENSE).
+**Thanks for stopping by. Happy organising!**

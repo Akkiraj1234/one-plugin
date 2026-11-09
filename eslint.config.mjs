@@ -20,9 +20,10 @@ export default defineConfig(
 		'package-lock.json',
 
 		// Development and release scripts.
-		'build-test.mjs',
+		'deploy-test.mjs',
 		'esbuild.config.mjs',
 		'release.mjs',
+		'update-changlog.mjs',
 		'version-bump.mjs',
 
 		// Project configuration and metadata.

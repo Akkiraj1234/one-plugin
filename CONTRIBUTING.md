@@ -1,68 +1,69 @@
 # Contributing to OnePlugin
 
-Thank you for your interest in contributing to OnePlugin!
+Thank you for your interest in contributing to **OnePlugin**!
 
 OnePlugin aims to make organising life in Obsidian easier through useful tools and a simple user experience.
 
-Contributions are welcome, including bug fixes, improvements, new features and ideas.
+Whether you're fixing a bug, improving existing functionality, or proposing a new feature, contributions are welcome.
 
-Please follow the guidelines below before contributing.
+Please take a moment to read these guidelines before getting started.
 
-## Table of Contents
+## Contents
 
-1. [Project Structure](#1-project-structure)
-2. [Before You Start](#2-before-you-start)
+1. [Before You Start](#1-before-you-start)
+2. [Project Structure](#2-project-structure)
 3. [Coding Guidelines](#3-coding-guidelines)
-    - [Documentation](#documentation)
-    - [API Changes](#api-changes)
-    - [Architecture](#architecture)
 4. [Development and Testing](#4-development-and-testing)
-    - [Obsidian Testing](#obsidian-testing)
-    - [Local Configuration](#local-configuration)
-5. [Documentation Guidelines](#5-documentation-guidelines)
-6. [Contributors](#6-contributors)
-7. [Pull Requests](#7-pull-requests)
-8. [License](#8-license)
+5. [Documentation](#5-documentation)
+6. [Pull Requests](#6-pull-requests)
+7. [License](#7-license)
 
-## 1. Project Structure
+---
+
+## 1. Before You Start
+
+Before working on a change:
+
+- Check existing issues to avoid duplicate work.
+- Create an issue describing the bug or proposed feature.
+- Wait for approval before starting implementation.
+- Reference the related issue in your Pull Request.
+
+Please avoid submitting unrelated or unapproved feature changes.
+
+## 2. Project Structure
 
 The project is organized into three main directories:
 
-| Directory | Description                                   |
-| --------- | --------------------------------------------- |
-| `src/`    | Main plugin code and feature implementations. |
-| `docs/`   | Project documentation.                        |
-| `test/`   | Test files and test suites.                   |
+| Directory | Purpose                          |
+| --------- | -------------------------------- |
+| `src/`    | Plugin source code and features. |
+| `tests/`  | Automated test suites.           |
+| `docs/`   | Project documentation.           |
 
-Maintain the existing directory structure when adding new files.
+Maintain the existing structure when adding new files.
 
-## 2. Before You Start
-
-- Create a GitHub issue before starting work on any bug fix or feature.
-- Wait for the issue to be approved before beginning implementation.
-- Every Pull Request must reference its related issue.
-- Do not work on unapproved features or changes.
+For a detailed overview, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## 3. Coding Guidelines
 
-OnePlugin prioritizes readable, maintainable and well-documented code.
+Write code that is readable, maintainable, and consistent with the existing codebase.
 
-- Every function, method and class must be documented.
-- Use meaningful variable and function names.
+- Use meaningful names for variables, functions, and classes.
+- Keep functions focused and responsibilities clear.
 - Follow existing naming conventions.
-- Keep functions focused on a single responsibility.
-- Avoid unnecessary complexity and dependencies.
-- Reuse existing functionality whenever possible.
 - Handle errors and invalid inputs appropriately.
-- Maintain the existing project architecture.
+- Reuse existing functionality where practical.
+- Avoid unnecessary dependencies and complexity.
+- Maintain the established project architecture.
 
 ### Documentation
 
-Use JSDoc to document functions and methods.
+Document every function, method, and class using JSDoc.
 
-Include:
+Include relevant information:
 
-- Purpose of the function or method.
+- Purpose and behaviour.
 - Parameters and their types.
 - Return values.
 - Errors thrown, where applicable.
@@ -73,8 +74,8 @@ Example:
 /**
  * Retrieves a hobby by its unique identifier.
  *
- * @param {string} hobbyId - Unique identifier of the hobby.
- * @returns {Object|null} The hobby data, or null if not found.
+ * @param {string} hobbyId - Unique hobby identifier.
+ * @returns {Object|null} Hobby data, or null if not found.
  */
 get(hobbyId) {
     // Implementation
@@ -83,101 +84,83 @@ get(hobbyId) {
 
 ### API Changes
 
-Whenever you modify an existing API:
+When modifying an existing API:
 
-- Update the relevant documentation.
-- Mention the API change in your commit.
-- Include the version associated with the change.
-- Explain why the change was necessary.
+- Update its documentation.
+- Explain the reason for the change.
 - Document breaking changes and their impact.
+- Mention relevant API changes in your commit.
+
+If a change affects release compatibility or versioning, document the required version impact.
 
 ### Architecture
 
-- Follow the existing project architecture.
+- Follow existing architectural patterns.
 - Keep APIs consistent and predictable.
 - Avoid unnecessary dependencies.
-- Do not introduce breaking changes without proper consideration.
-- Document significant architectural decisions in `docs/adr/`.
+- Consider backward compatibility before introducing breaking changes.
+- Record significant architectural decisions in `docs/adr/`.
 
 ## 4. Development and Testing
 
-Always test your changes before submitting a Pull Request.
+Test your changes before submitting a Pull Request.
 
 ### Obsidian Testing
 
-- Use a dedicated Obsidian test vault.
+- Use a dedicated test vault.
 - Never test development builds in your personal vault.
-- Follow the setup instructions in `docs/dev/`.
+- Follow the setup instructions in [`docs/dev/`](docs/dev/).
 - Verify that your changes work correctly inside Obsidian.
+
+Use the project's development tools to build and deploy your changes.
 
 ### Local Configuration
 
-OnePlugin uses a local `workflow.json` file for development configuration.
+Development uses a local `workflow.json` file.
 
 - Configure it for your own environment.
 - Never commit or push `workflow.json`.
 - Do not include personal machine paths or local configuration in commits.
 
-## 5. Documentation Guidelines
+## 5. Documentation
 
-Update documentation whenever necessary.
+Keep documentation accurate and consistent with the implementation.
 
-| Location     | When to update                             |
-| ------------ | ------------------------------------------ |
-| `docs/dev/`  | Developer APIs and implementation details. |
-| `docs/user/` | User-facing features and instructions.     |
-| `docs/adr/`  | Significant architectural decisions.       |
+Update the relevant documentation whenever functionality, APIs, or development workflows change.
 
-Keep documentation consistent with the implementation.
+| Location     | Purpose                                        |
+| ------------ | ---------------------------------------------- |
+| `docs/dev/`  | Development guides and implementation details. |
+| `docs/user/` | User-facing guides and instructions.           |
+| `docs/adr/`  | Architectural decisions.                       |
 
-## 6. Contributors
+## 6. Pull Requests
 
-Before submitting your first Pull Request, add your details to `CONTRIBUTORS.md`.
+Before submitting:
 
-Include:
-
-- Your name.
-- Your email address used for the contribution.
-
-Use the following format:
-
-```markdown
-| Name      | Email          |
-| --------- | -------------- |
-| Your Name | your@email.com |
-```
-
-Do not add another entry if you are already listed.
-
-## 7. Pull Requests
-
-Before submitting your Pull Request:
-
-1. Make sure your changes follow the coding guidelines.
-2. Run the relevant tests.
-3. Run the linter.
-4. Test your changes inside a dedicated Obsidian test vault.
-5. Update the relevant documentation.
-6. Add your details to `CONTRIBUTORS.md` if you are a new contributor.
-7. Ensure local configuration files are not included.
+1. Run the relevant tests.
+2. Run the linter.
+3. Test your changes in a dedicated Obsidian vault.
+4. Update relevant documentation.
+5. Review your changes.
+6. Ensure local configuration and unnecessary generated files are excluded.
 
 ### Pull Request Requirements
 
 - Reference the related GitHub issue.
-- Clearly describe what you changed.
-- Explain why the changes were necessary.
+- Clearly explain what changed and why.
 - Include screenshots for UI changes, where applicable.
-- Keep Pull Requests focused on one feature or issue.
+- Keep each Pull Request focused on its intended issue or feature.
 
-Wait for review and approval before merging your changes.
+Wait for review and approval before merging.
 
-## 8. License
+## 7. License
 
 By contributing to OnePlugin, you agree that your contributions will be distributed under the project's **GNU General Public License v3.0 (GPL-3.0)**.
 
 - Only submit code and assets you have the right to contribute.
-- See the `LICENSE` file for the complete license terms.
+- See the [`LICENSE`](LICENSE) file for the complete terms.
 
 ---
 
-Thank you for contributing to OnePlugin!
+Thank you for helping make OnePlugin better!

@@ -1,133 +1,132 @@
 # Development Guide
 
-Welcome to OnePlugin!
+Welcome to **OnePlugin**.
 
-This guide explains how to set up your development environment and work on the codebase.
+This guide covers the essentials of setting up your environment, navigating the codebase, and contributing to the project.
 
-## Table of Contents
+## Contents
 
-1. [Read First](#1-read-first)
-2. [Environment Setup](#2-environment-setup)
-3. [Development Tools](#3-development-tools)
-4. [Project Structure](#4-project-structure)
-5. [Where to Make Changes](#5-where-to-make-changes)
-6. [Widget Guidelines](#6-widget-guidelines)
-7. [Code Restrictions](#7-code-restrictions)
-8. [Submitting Changes](#8-submitting-changes)
+1. [Getting Started](#1-getting-started)
+2. [Development Workflow](#2-development-workflow)
+3. [Project Structure](#3-project-structure)
+4. [Widget Guidelines](#4-widget-guidelines)
+5. [Code Guidelines](#5-code-guidelines)
+6. [Submitting Changes](#6-submitting-changes)
 
-## 1. Read First
+---
 
-Before starting, read these documents:
+## 1. Getting Started
 
-- **CONTRIBUTING.md** — Contribution guidelines and coding rules.
-- **ARCHITECTURE.md** — Project architecture and how components work together.
-- **This guide** — Development setup and workflow.
+### Fork and Clone
 
-## 2. Environment Setup
+Fork the [OnePlugin repository](https://github.com/Akkiraj1234/one-plugin), then clone your fork locally.
 
-### Step 1: Fork and Clone
+You can keep the repository anywhere on your computer. It does not need to be inside an Obsidian vault.
 
-Fork the official repository:
+### Create a Branch
 
-[OnePlugin Repository](https://github.com/Akkiraj1234/one-plugin)
+Create a separate branch for your changes.
 
-Clone your fork anywhere on your computer.
+```bash
+git switch -c feature/your-feature
+```
 
-**Note:** You do not need to clone the repository inside your Obsidian vault.
+Avoid working directly on `main`.
 
-### Step 2: Create a Branch
-
-Create a separate branch for the issue you are working on.
-
-Do not work directly on `main`.
-
-### Step 3: Install Dependencies
-
-Run this command inside the repository:
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Step 4: Configure Your Test Vault
+### Configure a Test Vault
 
-Create a separate, preferably empty, Obsidian vault for testing.
+Create a separate Obsidian vault for development. Avoid using your personal vault.
 
-Create a `workflow.json` file in the repository root:
+Create `workflow.json` in the repository root:
 
 ```json
 {
-	"testVaultPath": "/path/to/your/test-vault"
+	"testVaultPath": "/path/to/test-vault",
+	"pluginPath": "/path/to/test-vault/.obsidian/plugins/oneplugin"
 }
 ```
 
-Replace the path with your test vault's location.
+Replace both paths with your actual test vault and plugin directory paths. The plugin directory must use the ID from `manifest.json`.
 
-**Important:**
+**Keep `workflow.json` local. Never commit or push it.**
 
-- Never use your personal vault for testing.
-- You can keep the repository anywhere on your computer.
-- `build-test` automatically copies the build files into your configured vault.
-- Never commit or push `workflow.json`.
+---
 
-## 3. Development Tools
+## 2. Development Workflow
 
-Use these commands during development:
+### Available Commands
 
-| Command              | Purpose                                          |
-| -------------------- | ------------------------------------------------ |
-| `npm run build-test` | Build the plugin and copy it to your test vault. |
-| `npm test`           | Run tests.                                       |
-| `npm run dev`        | Start the development build in watch mode.       |
-| `npm run build`      | Create a production build.                       |
-| `npm run lint`       | Check code using ESLint.                         |
+| Command               | Description                                     |
+| --------------------- | ----------------------------------------------- |
+| `npm run dev`         | Start the development build in watch mode.      |
+| `npm run build`       | Create a production build.                      |
+| `npm run deploy-test` | Build and copy the plugin into your test vault. |
+| `npm test`            | Run the test suite.                             |
+| `npm run lint`        | Check code with ESLint.                         |
 
 ### Recommended Workflow
 
-For regular development, use:
+For everyday development:
 
 ```bash
-npm run build-test
+npm run deploy-test
 ```
 
-After the build:
+This builds the plugin and copies the required files into your configured test vault.
 
-- If Obsidian is already open, reload OnePlugin.
-- If Obsidian is closed, the command attempts to open your test vault.
+The command does not launch Obsidian. Open your test vault and reload OnePlugin manually to load the updated build.
 
-You do not need to use the `version` or `release` commands.
+Before submitting changes, run:
 
-## 4. Project Structure
+```bash
+npm run lint
+npm test
+npm run build
+```
 
-The main code is inside `src/`.
+Version and release commands are not needed for regular development.
 
-| Directory      | Purpose                                            |
-| -------------- | -------------------------------------------------- |
-| `src/core/`    | Core logic and shared functionality.               |
-| `src/widgets/` | Individual widgets.                                |
-| `src/plugin/`  | Main plugin implementation and widget integration. |
-| `build/`       | Generated build files.                             |
+---
 
-Do not manually modify files inside `build/`.
+## 3. Project Structure
 
-## 5. Where to Make Changes
+The application source lives inside `src/`.
 
-You can work on:
+```text
+src/
+├── core/       # Core logic and shared functionality
+├── widgets/    # Individual widgets
+└── main.ts     # Plugin entry point
 
-- `src/` — Plugin code and features.
-- `docs/` — Documentation.
-- `test/` — Tests.
+tests/          # Test suite
+docs/           # Project documentation
+build/          # Generated production files
+```
 
-Avoid modifying these files unless required:
+Do not manually modify generated files inside `build/`.
 
-- `.gitignore`
-- Root configuration files.
-- Build scripts.
-- Release scripts.
+### Where to Make Changes
 
-## 6. Widget Guidelines
+| Location     | Purpose                            |
+| ------------ | ---------------------------------- |
+| `src/`       | Application logic and features     |
+| `tests/`     | Automated tests                    |
+| `docs/`      | Documentation                      |
+| Root scripts | Development and release automation |
 
-Every widget must follow this structure:
+Avoid changing root configuration and build scripts unless your work requires it.
+
+---
+
+## 4. Widget Guidelines
+
+Each widget should follow this basic structure:
 
 ```text
 WidgetName/
@@ -135,13 +134,11 @@ WidgetName/
 └── index.css
 ```
 
-### CSS Rules
+### CSS Naming
 
-- Import the widget's stylesheet through `index.css`.
-- Use the widget ID as a prefix for CSS classes.
-- Avoid generic class names.
+Use widget-specific prefixes for CSS classes to avoid conflicts.
 
-For example, if the widget ID is `HManager-panel`:
+For a widget named `HManager-panel`:
 
 ```css
 .HManager-panel-container {
@@ -153,7 +150,7 @@ For example, if the widget ID is `HManager-panel`:
 }
 ```
 
-Avoid:
+Avoid generic class names:
 
 ```css
 .container {
@@ -168,41 +165,45 @@ Avoid:
 
 Most root-level widgets do not use Shadow DOM.
 
-Use widget-specific CSS prefixes to avoid style conflicts.
-
-You can use Shadow DOM for independent widgets when needed.
-
-## 7. Code Restrictions
-
-- Do not use Node.js modules in application code.
-- Avoid unnecessary external dependencies.
-- Reuse existing functionality where possible.
-- Maintain the existing project structure.
-- Follow the rules in `CONTRIBUTING.md`.
-
-Node.js modules are allowed in development and build scripts, but not in the application code.
-
-## 8. Submitting Changes
-
-Before submitting a Pull Request:
-
-1. Run the relevant tests.
-2. Run the linter.
-3. Test your changes in your Obsidian test vault.
-4. Review your changes.
-5. Push your branch to your fork.
-6. Open a Pull Request against the official repository's `main` branch.
-
-### Pull Request Requirements
-
-- Mention the related issue number.
-- Explain what you changed.
-- Explain why you made the changes.
-- Include screenshots for UI changes.
-- Do not include local configuration or unnecessary generated files.
-
-Wait for the review and approval of your Pull Request.
+Prefer widget-specific CSS prefixes. Use Shadow DOM when a widget genuinely needs isolated styles.
 
 ---
 
-Thank you for contributing to OnePlugin!
+## 5. Code Guidelines
+
+- Keep application code free of Node.js modules.
+- Avoid unnecessary dependencies.
+- Reuse existing functionality where practical.
+- Follow the established project structure.
+- Write tests for new functionality.
+- Follow the rules in `CONTRIBUTING.md`.
+
+Node.js modules are permitted in development, testing, and build scripts, but not in application code.
+
+For detailed contribution rules, see [`CONTRIBUTING.md`](../../CONTRIBUTING.md).
+
+---
+
+## 6. Submitting Changes
+
+Before opening a Pull Request:
+
+1. Run the tests and linter.
+2. Test your changes in an Obsidian test vault.
+3. Review your changes.
+4. Push your branch to your fork.
+5. Open a Pull Request against `main`.
+
+### Pull Request Checklist
+
+- [ ] Reference the related issue, if applicable.
+- [ ] Explain what changed and why.
+- [ ] Include screenshots for UI changes.
+- [ ] Include relevant tests.
+- [ ] Exclude local configuration and unnecessary generated files.
+
+Wait for review and approval before merging.
+
+---
+
+**Thank you for contributing to OnePlugin.**

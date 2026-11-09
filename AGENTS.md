@@ -29,9 +29,9 @@ Follow the existing implementation instead of assuming a standard Obsidian sampl
 | -------------- | ------------------------------------ |
 | `src/core/`    | Core logic and shared functionality. |
 | `src/widgets/` | Individual widgets.                  |
-| `src/plugin/`  | Main plugin implementation.          |
+| `src/main.ts`  | Plugin entry point and lifecycle.    |
 | `docs/`        | Project documentation.               |
-| `test/`        | Tests.                               |
+| `tests/`       | Tests.                               |
 | `build/`       | Generated build files.               |
 
 Maintain the existing structure. Do not reorganize directories without a clear reason.
@@ -201,7 +201,7 @@ Before considering a change complete:
 1. Run relevant tests using `npm test`.
 2. Run `npm run lint`.
 3. Build using `npm run build`.
-4. Test UI changes using `npm run build-test`.
+4. Test UI changes using `npm run deploy-test`.
 
 Always use a dedicated Obsidian test vault.
 

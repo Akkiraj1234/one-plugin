@@ -6,7 +6,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 
 /**
- * Prints a build-test error and exits the process.
+ * Raises a deploy-test error.
  * @param {string} message - Error message to display.
  */
 function fail(message) {
@@ -225,8 +225,8 @@ async function copyFileToDestination(sourcePath, pluginPath) {
 }
 
 /**
- * Runs the build-test workflow: loads configuration, builds the plugin,
- * and copies the output into the test vault.
+ * Runs the deploy-test workflow: loads configuration, builds the plugin,
+ * copies the output into the test vault, and opens it in Obsidian.
  * @returns {Promise<void>}
  */
 async function main() {
@@ -243,10 +243,7 @@ async function main() {
 
 	const buildPath = await build_One_Plugin(projectDir);
 	await copyFileToDestination(buildPath, config.pluginPath);
-
-	console.log(
-		"Reload OnePlugin in Obsidian to apply the changes."
-	);
+	console.log("Deployment completed successfully! Reload OnePlugin to see the changes");
 }
 
 export {
@@ -261,7 +258,7 @@ export {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
 	main().catch(error => {
-		console.error(`Build-test failed: ${error.message}`);
+		console.error(`Deploy-test failed: ${error.message}`);
 		process.exitCode = 1;
 	});
 }
