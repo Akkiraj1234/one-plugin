@@ -1,68 +1,132 @@
+ <div align="center">
+
+  <img src="assets/one-pugin-big-logo.svg" alt="OnePlugin logo" width="112" />
+
 # OnePlugin
 
 **Organise your life, right inside Obsidian.**
 
-OnePlugin brings everyday organisation tools into Obsidian — from managing hobbies and planning activities to useful widgets that keep everything within reach.
+Bring your hobbies, activities, plans, and everyday tools together in one connected workspace.
 
-<escape>[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
-![Version](https://img.shields.io/github/v/release/Akkiraj1234/one-plugin?label=version)
-![Status](https://img.shields.io/badge/status-in_development-yellow)</escape>
+  <p>
+    <a href="LICENSE"><img alt="GPL-3.0 License" src="https://img.shields.io/badge/license-GPL--3.0-9B7AE4?style=for-the-badge&labelColor=171421" /></a>
+    <img alt="Latest release" src="https://img.shields.io/github/v/release/Akkiraj1234/one-plugin?style=for-the-badge&color=9B7AE4&labelColor=171421&label=release" />
+    <img alt="Development status" src="https://img.shields.io/badge/status-in%20development-A78BFA?style=for-the-badge&labelColor=171421" />
+  </p>
 
-<escape><!-- Add project screenshot or banner here. --></escape>
+  <p>
+    <a href="docs/user/README.md">Documentation</a>
+    ·
+    <a href="CONTRIBUTING.md">Contributing</a>
+    ·
+    <a href="https://github.com/Akkiraj1234/one-plugin/issues">Report an issue</a>
+  </p>
 
-## ✨ What can you do with OnePlugin?
+</div>
 
-- **Hobby Management** — Organise hobbies and track activities.
-- **Hobby Planning** — Plan activities and follow your progress.
-- **New Tab** — A configurable workspace with useful widgets.
-- **GitHub Activity** — View public GitHub activity from your new tab.
+<p align="center">
+  <img src="assets/OnePlugin%20%E2%80%94%20Obsidian%20cover.png" alt="OnePlugin — a connected workspace for hobbies, activities, and everyday organisation inside Obsidian." width="100%" />
+</p>
 
-<text color="secondary" size="sm">OnePlugin is actively developing. Features and interfaces are still evolving.</text>
+---
 
-## 🚀 Get Started
+## ✨ What is OnePlugin?
 
-**Using OnePlugin?**
+OnePlugin is an everyday organisation toolkit built for [Obsidian](https://obsidian.md/).
 
-Explore the [User Documentation](docs/user/README.md) for feature guides and instructions.
+It brings together tools for managing hobbies, planning activities, tracking progress, and creating a personalised workspace — all within your Obsidian vault.
 
-**Want to contribute or explore the code?**
+Rather than scattering your everyday workflows across different tools, OnePlugin aims to bring them together in one place.
 
-Start with these documents:
+## 🚀 Features
 
-| Guide                                        | Purpose                                  |
-| -------------------------------------------- | ---------------------------------------- |
-| [Development Guide](docs/dev/DEVELOPMENT.md) | Setup and development workflow           |
-| [Package Scripts](docs/dev/SCRIPTS.md)       | Command examples, arguments, and effects |
-| [Contributing](CONTRIBUTING.md)              | Contribution guidelines                  |
-| [Architecture](ARCHITECTURE.md)              | Understand how OnePlugin works           |
-| [Documentation Index](docs/README.md)        | Browse developer and user guides         |
-| [Architecture Decisions](docs/adr/README.md) | Understand important design decisions    |
+### 🎨 Hobby Management
+
+Organise your hobbies, structure them into categories, and keep track of the things you enjoy doing.
+
+### 📅 Hobby Planning
+
+Plan activities, maintain your routines, and track your progress over time.
+
+### 🧩 Customisable New Tab
+
+Turn your new tab into a personal workspace with configurable widgets and useful information.
+
+### 🐙 GitHub Activity
+
+Bring your public GitHub activity into your workspace and keep an eye on your development activity.
+
+> OnePlugin is actively in development. Features, interfaces, and internal APIs are evolving, and some functionality may be incomplete or subject to change.
+
+## 📖 Get Started
+
+Whether you're using OnePlugin or exploring its codebase, there's documentation to help you get started.
+
+**For users**
+
+Visit the [User Documentation](docs/user/README.md) for feature guides, usage instructions, and help.
+
+**For developers and contributors**
+
+| Guide                                        | Description                                     |
+| -------------------------------------------- | ----------------------------------------------- |
+| [Development Guide](docs/dev/DEVELOPMENT.md) | Environment setup and development workflow      |
+| [Package Scripts](docs/dev/SCRIPTS.md)       | Available commands, arguments, and side effects |
+| [Contributing](CONTRIBUTING.md)              | Contribution guidelines and expectations        |
+| [Architecture](ARCHITECTURE.md)              | Runtime structure and code ownership            |
+| [Documentation Index](docs/README.md)        | Complete documentation index                    |
+| [Architecture Decisions](docs/adr/README.md) | Important architectural decisions               |
 
 ## 🛠️ Development
 
-Requirements: Node.js, npm, and a dedicated Obsidian test vault.
+Want to explore the code, experiment with features, or contribute?
+
+### Requirements
+
+- Node.js
+- npm
+- A dedicated Obsidian test vault
+
+### Setup
+
+Clone the repository and install its dependencies:
 
 ```bash
 git clone https://github.com/Akkiraj1234/one-plugin.git
 cd one-plugin
 npm install
+```
+
+Configure your local `workflow.json` with the path to your dedicated Obsidian test vault.
+
+Deploy the plugin to your test vault:
+
+```bash
 npm run deploy-test
 ```
 
-Configure your local `workflow.json` before deployment. See the [Development Guide](docs/dev/DEVELOPMENT.md) for setup instructions.
+For detailed setup instructions, see the [Development Guide](docs/dev/DEVELOPMENT.md).
 
-See the [Package Scripts guide](docs/dev/SCRIPTS.md) for all commands, examples, supported arguments, and side effects.
+For available commands and their behaviour, see the [Package Scripts](docs/dev/SCRIPTS.md).
 
 ## 🤝 Contributing
 
-Found a bug or have an idea? Contributions are welcome!
+OnePlugin is an independent open-source project, and contributions are welcome.
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) and discuss your changes through a GitHub issue before implementation.
+Whether you've spotted a bug, have an idea for a new feature, or want to improve the existing codebase, your input is appreciated.
+
+Before contributing:
+
+1. Read the [Contributing Guidelines](CONTRIBUTING.md).
+2. Check existing [GitHub Issues](https://github.com/Akkiraj1234/one-plugin/issues).
+3. Open an issue to discuss substantial changes before starting implementation.
+
+Small improvements, thoughtful feedback, and focused contributions all help make the project better.
 
 ## 📄 License
 
-OnePlugin is open source under the [GNU GPL-3.0 License](LICENSE).
+OnePlugin is distributed under the [GNU General Public License v3.0](LICENSE).
+
+You are free to use, study, modify, and redistribute the project under the terms of the license.
 
 ---
-
-**Thanks for stopping by. Happy organising!**
