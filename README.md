@@ -1,4 +1,5 @@
- <div align="center">
+<!-- markdownlint-disable MD033 MD041 -->
+<div align="center">
 
   <img src="assets/one-pugin-big-logo.svg" alt="OnePlugin logo" width="112" />
 
@@ -25,108 +26,48 @@ Bring your hobbies, activities, plans, and everyday tools together in one connec
 </div>
 
 <p align="center">
-  <img src="assets/OnePlugin%20%E2%80%94%20Obsidian%20cover.png" alt="OnePlugin — a connected workspace for hobbies, activities, and everyday organisation inside Obsidian." width="100%" />
+  <img src="assets/OnePlugin%20%E2%80%94%20Obsidian%20cover.svg" alt="OnePlugin — a connected workspace for hobbies, activities, and everyday organisation inside Obsidian." width="100%" />
 </p>
+<!-- markdownlint-enable MD033 MD041 -->
 
 ---
 
 ## ✨ What is OnePlugin?
 
-OnePlugin is an everyday organisation toolkit built for [Obsidian](https://obsidian.md/).
-
-It brings together tools for managing hobbies, planning activities, tracking progress, and creating a personalised workspace — all within your Obsidian vault.
-
-Rather than scattering your everyday workflows across different tools, OnePlugin aims to bring them together in one place.
+OnePlugin brings hobby management, activity planning, and useful widgets into [Obsidian](https://obsidian.md/).
 
 ## 🚀 Features
 
-### 🎨 Hobby Management
-
-Organise your hobbies, structure them into categories, and keep track of the things you enjoy doing.
-
-### 📅 Hobby Planning
-
-Plan activities, maintain your routines, and track your progress over time.
-
-### 🧩 Customisable New Tab
-
-Turn your new tab into a personal workspace with configurable widgets and useful information.
-
-### 🐙 GitHub Activity
-
-Bring your public GitHub activity into your workspace and keep an eye on your development activity.
+- **Hobbies:** Organise interests and track activities.
+- **Planning:** Plan routines and follow progress.
+- **New tab:** Create a personal workspace with configurable widgets.
+- **GitHub:** See your public activity in Obsidian.
 
 > OnePlugin is actively in development. Features, interfaces, and internal APIs are evolving, and some functionality may be incomplete or subject to change.
 
 ## 📖 Get Started
 
-Whether you're using OnePlugin or exploring its codebase, there's documentation to help you get started.
-
-**For users**
-
-Visit the [User Documentation](docs/user/README.md) for feature guides, usage instructions, and help.
-
-**For developers and contributors**
-
-| Guide                                        | Description                                     |
-| -------------------------------------------- | ----------------------------------------------- |
-| [Development Guide](docs/dev/DEVELOPMENT.md) | Environment setup and development workflow      |
-| [Package Scripts](docs/dev/SCRIPTS.md)       | Available commands, arguments, and side effects |
-| [Contributing](CONTRIBUTING.md)              | Contribution guidelines and expectations        |
-| [Architecture](ARCHITECTURE.md)              | Runtime structure and code ownership            |
-| [Documentation Index](docs/README.md)        | Complete documentation index                    |
-| [Architecture Decisions](docs/adr/README.md) | Important architectural decisions               |
+Start with the [User Guide](docs/user/README.md), or see the [Development Guide](docs/dev/DEVELOPMENT.md) and [Contributing Guide](CONTRIBUTING.md).
 
 ## 🛠️ Development
 
-Want to explore the code, experiment with features, or contribute?
-
-### Requirements
-
-- Node.js
-- npm
-- A dedicated Obsidian test vault
-
-### Setup
-
-Clone the repository and install its dependencies:
+Requires Node.js, npm, and a dedicated Obsidian test vault.
 
 ```bash
 git clone https://github.com/Akkiraj1234/one-plugin.git
 cd one-plugin
 npm install
-```
-
-Configure your local `workflow.json` with the path to your dedicated Obsidian test vault.
-
-Deploy the plugin to your test vault:
-
-```bash
 npm run deploy-test
 ```
 
-For detailed setup instructions, see the [Development Guide](docs/dev/DEVELOPMENT.md).
-
-For available commands and their behaviour, see the [Package Scripts](docs/dev/SCRIPTS.md).
+Set the test vault path in your local `workflow.json` first. See the [Development Guide](docs/dev/DEVELOPMENT.md) for setup details.
 
 ## 🤝 Contributing
 
-OnePlugin is an independent open-source project, and contributions are welcome.
-
-Whether you've spotted a bug, have an idea for a new feature, or want to improve the existing codebase, your input is appreciated.
-
-Before contributing:
-
-1. Read the [Contributing Guidelines](CONTRIBUTING.md).
-2. Check existing [GitHub Issues](https://github.com/Akkiraj1234/one-plugin/issues).
-3. Open an issue to discuss substantial changes before starting implementation.
-
-Small improvements, thoughtful feedback, and focused contributions all help make the project better.
+Bug reports and focused contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) and open an [issue](https://github.com/Akkiraj1234/one-plugin/issues) to discuss substantial changes.
 
 ## 📄 License
 
-OnePlugin is distributed under the [GNU General Public License v3.0](LICENSE).
-
-You are free to use, study, modify, and redistribute the project under the terms of the license.
+The source code is distributed under the [GNU General Public License v3.0](LICENSE). The OnePlugin name, logo, and branding are reserved and are not covered by that license; see [LOGO-LICENSE.txt](assets/LOGO-LICENSE.txt).
 
 ---

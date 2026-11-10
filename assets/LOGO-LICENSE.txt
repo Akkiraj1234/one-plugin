@@ -1,0 +1,8 @@
+OnePlugin logo and branding
+Copyright (c) 2026 Akhand Raj. All rights reserved.
+
+The OnePlugin name, logo, and visual branding are not covered by the
+repository's GPL-3.0 license. No permission is granted to use, copy,
+modify, or redistribute these assets without prior written permission.
+
+This notice does not change the license for the project's source code.
