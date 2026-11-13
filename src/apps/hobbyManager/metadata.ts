@@ -5,6 +5,15 @@ const hobbyManager: ApplicationDefinition = {
 	id: 'hobby-manager',
 	name: 'Hobby Manager',
 
+	settings: {
+		enabled: true,
+		theme: 'default',
+		showHeatmap: true,
+		showStatistics: true,
+	},
+
+	widgets: [],
+
 	create() {
 		return new HobbyManager();
 	},

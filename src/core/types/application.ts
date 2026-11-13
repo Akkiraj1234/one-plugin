@@ -1,13 +1,16 @@
 import type { WidgetDefinition } from '@/core/types';
+import type { App, Plugin } from 'obsidian';
 
 export interface ApplicationContext {
-	plugin: unknown;
+	app: App;
+	plugin: Plugin;
 }
 
 export interface ApplicationDefinition {
 	id: string;
 	name: string;
 
+	settings: Record<string, unknown>;
 	widgets?: WidgetDefinition[];
 	create(): Application;
 }
