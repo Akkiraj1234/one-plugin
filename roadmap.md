@@ -6,27 +6,29 @@ This document outlines the planned development and release milestones for One-Pl
 
 ## Future Improvements
 
-### Development Tooling
-
-### Testing
-
-### MarkDB and Hobby Manager
-
-### Versioning and Release Tooling
-
-### Documentation
-
 ## Release Roadmap
 
 ### 1.0.0 — Foundation
 
-- [ ] Establish the initial database structure.
-- [ ] Implement the initial data management and editing functionality.
+- [ ] Establish the core plugin architecture and application lifecycle.
+- [ ] Set up the main settings screen and global plugin settings.
+- [ ] Set up MarkDB and create the default database when the plugin starts for the first time.
+- [ ] Define the initial database structure and schemas.
+- [ ] Implement basic data operations (create, read, update, and delete).
+- [ ] Add data validation and error handling.
+- [ ] Ensure database changes are safely saved and persist after restarting Obsidian.
+- [ ] Create and maintain documentation for the core architecture, database, settings, and development process.
+- [ ] Improve and add test cases for new and modified functionality.
+- [ ] Ensure existing tests continue to pass after changes.
 
 ### 1.1.0 — Hobby Manager
 
-- [ ] First release of Hobby Manager.
-- [ ] Basic hobby management and CRUD operations.
+- [ ] Introduce the Hobby Manager.
+- [ ] Implement basic hobby creation, viewing, editing, and deletion.
+- [ ] Support parent and child hobbies.
+- [ ] Integrate Hobby Manager with MarkDB.
+- [ ] Add documentation for the new feature.
+- [ ] Add and update test cases for the changes.
 
 ### 1.2.0 — Hobby Planner
 

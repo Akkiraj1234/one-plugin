@@ -1,45 +1,56 @@
-# Architecture
+# OnePlugin Architecture
 
-OnePlugin is an Obsidian desktop and mobile plugin. Its TypeScript application code runs in Obsidian's browser environment; Node.js is used only by development, test, build, and release scripts.
+OnePlugin is a plugin made for Obsidian. It is not an application itself, but a collection of smaller applications and features that run inside OnePlugin.
 
-## Runtime flow
+OnePlugin provides a shared environment where applications can work together through widgets and a defined communication system. All applications use the Obsidian runtime and follow its lifecycle.
 
-1. Obsidian loads `src/main.ts` and calls the plugin's `onload()` method.
-2. The plugin delegates initialization to `AkkiObsidianApp` in `src/core/app.ts`.
-3. The coordinator loads plugin settings, initializes MarkDB, then creates widgets listed in `src/widgets/index.ts`.
-4. On unload, it saves settings and calls each widget's unload hook.
+> **Important!**
+>
+> Never create a separate blocking runtime inside Obsidian. Applications should use the Obsidian runtime. They can also use asynchronous tasks for background work, but these must not block the main runtime.
 
-`src/core/types.ts` defines the widget definition, runtime, and settings-context contracts. The settings tab in `src/core/settings_tab.ts` renders settings contributed by registered widgets.
+## Architecture
 
-## Source ownership
+OnePlugin has four main architectural areas:
 
-| Location           | Responsibility                                                    |
-| ------------------ | ----------------------------------------------------------------- |
-| `src/main.ts`      | Obsidian plugin lifecycle entry point                             |
-| `src/core/`        | Application coordination, settings, shared types, and persistence |
-| `src/core/markdb/` | MarkDB formats, parsing, validation, registry, and public API     |
-| `src/widgets/`     | User-facing features registered by `src/widgets/index.ts`         |
-| `tests/`           | MarkDB and development-script tests                               |
-| `docs/`            | Developer, user, and architecture-decision documentation          |
+1. **Plugin-level architecture:** How applications are registered, initialized, started, and stopped.
+2. **Application-level architecture:** How individual applications are created and managed inside OnePlugin.
+3. **MarkDB architecture:** How data is stored, managed, and accessed by applications.
+4. **Widget-level architecture (planned):** How widgets allow different applications to communicate and share functionality.
 
-To add a widget, implement its definition and runtime in `src/widgets/`, then register it in `src/widgets/index.ts`. The app uses that registry for initialization and default settings.
+## Basic Architecture
 
-## Settings and data
+OnePlugin uses a central runtime to manage its applications.
 
-Plugin and widget settings are stored with Obsidian's `loadData()` and `saveData()` APIs. Widget settings are keyed by widget ID; defaults are merged with saved values in `AkkiObsidianApp`.
+Applications are registered at compile time through the application registry. Each application provides its own definition and a method to create an instance.
 
-Hobby records are stored in the vault through MarkDB. `src/core/markdb/maindb.ts` opens a schema-validated database using Obsidian's vault adapter. The MarkDB package also supports JSON, line-oriented file, and structured database formats; see `src/core/markdb/index.ts` for its public exports.
+When an application is created, it receives access to shared services such as settings and the application registry. This gives applications access to the resources they need without creating separate instances.
 
-The GitHub Activity widget fetches public activity from GitHub. Its request and response handling are in `src/widgets/new_tab/api.ts`; its view and actions are in `src/widgets/new_tab/`.
+### Application Communication
 
-## Build and test
+Applications do not communicate directly with each other. Instead, they use widgets and a shared communication format.
 
-`esbuild.config.mjs` bundles `src/main.ts` and `src/styles.css` into `build/<package-name>/`, and copies `manifest.json` and `LICENSE`. The package name currently makes the output directory `build/oneplugin-obsidian/`. `npm run dev` watches source files; `npm run build` runs the TypeScript check and a minified production build.
+Each application can expose widgets to share its data or functionality. Other applications can use these widgets without knowing how they work internally.
 
-`deploy-test.mjs` reads `workflow.json`, builds the plugin, and copies files into the configured test-vault plugin directory. Use a dedicated test vault; deployment does not launch Obsidian. See [the development guide](docs/dev/DEVELOPMENT.md) and [package script reference](docs/dev/SCRIPTS.md).
+This keeps applications independent and makes it easier to connect new applications to OnePlugin.
 
-## Releases
+### Application Lifecycle
 
-`release.mjs` is intended to validate the Git state, run checks, synchronize version metadata, update the changelog, build, create a release commit and tag, and push them. `.github/workflows/release.yml` publishes assets when a tag is pushed.
+The central runtime manages the lifecycle of each application.
 
-The release workflow derives its artifact directory from the package name, matching the build configuration. See [the script reference](docs/dev/SCRIPTS.md) for release command behavior and side effects.
+Applications go through the following stages:
+
+- **Initialize:** Set up the application and receive its context.
+- **Prepare:** Prepare the resources needed by the application.
+- **Start:** Start the application's functionality.
+- **Stop:** Stop running processes.
+- **Dispose:** Release resources when they are no longer needed.
+
+### Obsidian Integration
+
+Applications use the Obsidian API to create and manage views, side panels, and other UI components.
+
+Obsidian manages these components through its own registration system and lifecycle. Applications handle their own rendering, data initialization, and internal logic.
+
+**Resource management:** Avoid clearing caches unnecessarily when changing views or pages. Some resources may still be needed when the user returns to a previous view.
+
+The widget communication system is planned for future development.
