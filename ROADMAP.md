@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD007 -->
+
 # One-Plugin Roadmap
 
 **One-Plugin — A plugin to make life easier.**
@@ -10,17 +12,38 @@ This document outlines the planned development and release milestones for One-Pl
 
 ### 1.0.0 — Foundation
 
-- [ ] create registerapp.mjs to find regsiterd app and write them in src/regsitery.ts
+**Current focus: Complete the plugin runtime foundation.**
+
+- [ ] Complete the core plugin architecture and application lifecycle implementation.
+    - [ ] Finalize the shared settings interface provided through `ApplicationContext`.
+    - [ ] Connect application settings access to the runtime and remove unused settings-manager code.
+    - [ ] Implement startup failure handling for application initialization, preparation, and startup.
+    - [ ] Ensure partially initialized applications and previously started applications are cleaned up safely.
+    - [ ] Ensure `dispose()` is attempted even when an application's `stop()` fails.
+    - [ ] Continue shutting down other applications when one application fails.
+- [ ] Add runtime lifecycle tests.
+    - [ ] Test application startup order.
+    - [ ] Test reverse-order shutdown.
+    - [ ] Test application settings access.
+    - [ ] Test startup failure and cleanup behavior.
+    - [ ] Test shutdown when `stop()` or `dispose()` fails.
+- [ ] Verify the plugin runtime against the [Plugin Runtime Architecture](docs/dev/Architecture/PLUGIN.md) guide.
 - [ ] Establish the core plugin architecture and application lifecycle.
 - [ ] Set up the main settings screen and global plugin settings.
-- [ ] Set up MarkDB and create the default database when the plugin starts for the first time.
-- [ ] Define the initial database structure and schemas.
-- [ ] Implement basic data operations (create, read, update, and delete).
-- [ ] Add data validation and error handling.
-- [ ] Ensure database changes are safely saved and persist after restarting Obsidian.
+- [ ] Create `registerapp.mjs` to discover registered applications and generate `src/registry.ts`.
+- [ ] Set up MarkDB inside `src/core/markdb/`.
+    - [ ] Move the existing implementation from `oldsrc/core/markdb/` into the new source structure.
+    - [ ] Ensure the existing MarkDB tests pass against the migrated implementation.
+    - [ ] Create the default database when the plugin starts for the first time.
+    - [ ] Define the initial database structure and schemas.
+    - [ ] Implement basic data operations (create, read, update, and delete).
+    - [ ] Add data validation and error handling.
+    - [ ] Ensure database changes are safely saved and persist after restarting Obsidian.
 - [ ] Create and maintain documentation for the core architecture, database, settings, and development process.
 - [ ] Improve and add test cases for new and modified functionality.
 - [ ] Ensure existing tests continue to pass after changes.
+
+**Recommended order:** Finish the runtime foundation and its tests first. Then migrate and integrate MarkDB.
 
 ### 1.1.0 — Hobby Manager
 
