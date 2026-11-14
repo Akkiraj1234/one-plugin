@@ -16,7 +16,7 @@ Bring your hobbies, activities, plans, and everyday tools together in one connec
   </p>
 
   <p>
-    <a href="docs/user/README.md">Documentation</a>
+    <a href="docs/README.md">Documentation</a>
     ·
     <a href="CONTRIBUTING.md">Contributing</a>
     ·
@@ -47,20 +47,24 @@ OnePlugin brings hobby management, activity planning, and useful widgets into [O
 
 ## 📖 Get Started
 
-Start with the [User Guide](docs/user/README.md), or see the [Development Guide](docs/dev/DEVELOPMENT.md) and [Contributing Guide](CONTRIBUTING.md).
+Start with the [User Guide](docs/user/README.md) to learn about using the plugin.
+
+Interested in development? Start with the [Developer Documentation](docs/dev/README.md) or [Getting Started Guide](docs/dev/GettingStarted.md). See the [Architecture Overview](ARCHITECTURE.md) to understand the codebase and the [Contributing Guidelines](CONTRIBUTING.md) before proposing changes.
 
 ## 🛠️ Development
 
 Requires Node.js, npm, and a dedicated Obsidian test vault.
 
+> Fork the OnePlugin repository to your GitHub account, then clone your fork:
+
 ```bash
-git clone https://github.com/Akkiraj1234/one-plugin.git
+git clone https://github.com/YOUR-USERNAME/one-plugin.git
 cd one-plugin
 npm install
 npm run deploy-test
 ```
 
-Set the test vault path in your local `workflow.json` first. See the [Development Guide](docs/dev/DEVELOPMENT.md) for setup details.
+Set the test vault path in your local `workflow.json` first. For detailed instructions, see the [Getting Started Guide](docs/dev/GettingStarted.md) and [Development Guide](docs/dev/DEVELOPMENT.md).
 
 ## 🤝 Contributing
 

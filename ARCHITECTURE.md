@@ -2,7 +2,7 @@
 
 OnePlugin is a plugin made for Obsidian. It is not an application itself, but a collection of smaller applications and features that run inside OnePlugin.
 
-OnePlugin provides a shared environment where applications can work together through widgets and a defined communication system. All applications use the Obsidian runtime and follow its lifecycle.
+OnePlugin is designed to provide a shared environment where applications can work together through a widget-based communication system. All applications use the Obsidian runtime and follow its lifecycle.
 
 > **Important!**
 >
@@ -12,10 +12,10 @@ OnePlugin provides a shared environment where applications can work together thr
 
 OnePlugin has four main architectural areas:
 
-1. **Plugin-level architecture:** How applications are registered, initialized, started, and stopped.
-2. **Application-level architecture:** How individual applications are created and managed inside OnePlugin.
-3. **MarkDB architecture:** How data is stored, managed, and accessed by applications.
-4. **Widget-level architecture (planned):** How widgets allow different applications to communicate and share functionality.
+1. **[Plugin-level architecture](./docs/dev/Architecture/PLUGIN.md)** — How applications are registered, initialized, started, and stopped.
+2. **[Application-level architecture](./docs/dev/Architecture/APPLICATION.md)** — How individual applications are created and managed inside OnePlugin.
+3. **[MarkDB architecture](./docs/dev/Architecture/MARKDB.md)** — How data is stored, managed, and accessed by applications.
+4. **[Widget-level architecture (planned)](./docs/dev/Architecture/WIDGETS.md)** — How widgets will allow different applications to communicate and share functionality.
 
 ## Basic Architecture
 
@@ -23,15 +23,17 @@ OnePlugin uses a central runtime to manage its applications.
 
 Applications are registered at compile time through the application registry. Each application provides its own definition and a method to create an instance.
 
-When an application is created, it receives access to shared services such as settings and the application registry. This gives applications access to the resources they need without creating separate instances.
+When an application is created, it receives an application context containing access to shared resources and services. This allows applications to use the resources they need without creating separate instances.
 
 ### Application Communication
 
-Applications do not communicate directly with each other. Instead, they use widgets and a shared communication format.
+Applications are designed not to communicate directly with each other. Instead, they will use widgets and a shared communication format.
 
 Each application can expose widgets to share its data or functionality. Other applications can use these widgets without knowing how they work internally.
 
 This keeps applications independent and makes it easier to connect new applications to OnePlugin.
+
+_Note: The widget communication system is planned for future development._
 
 ### Application Lifecycle
 
@@ -52,5 +54,3 @@ Applications use the Obsidian API to create and manage views, side panels, and o
 Obsidian manages these components through its own registration system and lifecycle. Applications handle their own rendering, data initialization, and internal logic.
 
 **Resource management:** Avoid clearing caches unnecessarily when changing views or pages. Some resources may still be needed when the user returns to a previous view.
-
-The widget communication system is planned for future development.

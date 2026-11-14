@@ -1,5 +1,13 @@
 # User Documentation
 
-This folder contains instructions for installing and using released OnePlugin features. Add a focused guide when a feature or workflow needs more detail than the main [README](../../README.md).
+Welcome to the OnePlugin user documentation!
 
-Keep instructions user-facing: explain the required settings and actions, show a short example when useful, and link to related guides. Do not describe planned behavior as available functionality. Developer and contribution instructions belong in [`docs/dev/`](../dev/README.md).
+OnePlugin is still under development, so there isn't much user documentation available yet.
+
+Guides for installation, configuration, and using its features will be added as development progresses.
+
+**Nothing here yet, but more is coming soon!** 🚧
+
+In the meantime, you can check out the [main README](../../README.md) to learn more about OnePlugin.
+
+For development and contribution instructions, see the [Developer Documentation](../dev/README.md).

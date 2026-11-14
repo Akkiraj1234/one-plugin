@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD010 -->
+
 # Development Setup
 
 Use Node.js and npm for development, plus a separate Obsidian vault for testing. Do not use a personal vault.

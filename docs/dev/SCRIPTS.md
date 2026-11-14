@@ -1,33 +1,41 @@
 # Package Scripts
 
-Run all commands from the repository root. Pass arguments to npm scripts using `--`, for example `npm run release -- patch`.
+Run all commands from the repository root. To pass arguments to an npm script, use `--`, for example:
 
-## Build and test
+```sh
+npm run release -- patch
+```
+
+## Build and Test
 
 | Command                | Description                                               |
 | ---------------------- | --------------------------------------------------------- |
-| `npm run dev`          | Watch source files and rebuild during development.        |
-| `npm run build`        | Type-check and create a minified production build.        |
+| `npm run dev`          | Start the development build in watch mode.                |
+| `npm run build`        | Run TypeScript checks and create a production build.      |
 | `npm run deploy-test`  | Build and copy the plugin into the configured test vault. |
 | `npm test`             | Run all automated tests.                                  |
 | `npm run test:markdb`  | Run MarkDB tests only.                                    |
 | `npm run test:scripts` | Run development-script tests only.                        |
 | `npm run lint`         | Run ESLint.                                               |
-| `npm run check`        | Run lint and tests.                                       |
+| `npm run check`        | Run lint and all automated tests.                         |
 
-### Typical workflow
+### Typical Workflow
+
+Start the development build:
 
 ```sh
 npm run dev
 ```
 
-In another terminal:
+In another terminal, deploy the plugin to your test vault:
 
 ```sh
 npm run deploy-test
 ```
 
-Reload OnePlugin in your test vault. Before submitting changes, run:
+Reload OnePlugin in your test vault to test the changes.
+
+Before submitting changes, run:
 
 ```sh
 npm test
@@ -35,30 +43,45 @@ npm run lint
 npm run build
 ```
 
-`deploy-test.mjs` handles vault validation and copying. `esbuild.config.mjs` handles bundling.
+`deploy-test.mjs` handles test-vault validation and deployment, while `esbuild.config.mjs` handles bundling.
 
-## Versioning and releases
+## Versioning and Releases
 
-To update the version without creating a Git commit or tag:
+### Update the Version
+
+To update the project version without creating a Git commit or tag:
 
 ```sh
 npm version patch --no-git-tag-version
 ```
 
-Use `minor`, `major`, or an explicit stable version (such as `1.2.0`) instead of `patch`. The version lifecycle hook synchronizes `manifest.json` and `versions.json`.
+You can use `minor`, `major`, or an explicit stable version such as `1.2.0` instead of `patch`.
 
-To create a release:
+The version lifecycle script synchronizes the version in `manifest.json` and `versions.json`.
+
+### Create a Release
+
+Run the release script with the desired version increment or explicit version:
 
 ```sh
 npm run release -- patch
+```
+
+Or:
+
+```sh
 npm run release -- 1.2.0
 ```
 
-The release script runs checks, updates version metadata and the changelog, builds, creates a release commit and tag, and pushes them. **Only run it for an approved release with a clean Git working tree.**
+The release script runs the release workflow, including checks, version updates, changelog preparation, building, Git commit and tag creation, and pushing the release.
 
-The release helper uses fully qualified Git refs when checking and pushing tags. The workflow derives `BUILD_DIR` from the package name and uses it consistently for artifact validation, provenance attestation, and release uploads. It extracts the matching version section from `changelog.md` with `release-notes.mjs` and uses that content as the GitHub release description.
+**Only run this command for an approved release with a clean Git working tree.**
 
-## Roadmap helper
+The release workflow uses fully qualified Git refs when checking and pushing tags. It also derives `BUILD_DIR` from the package name and uses it consistently for artifact validation, provenance attestation, and release uploads.
+
+Release notes are extracted from the matching version section in `changelog.md` using `release-notes.mjs` and used as the GitHub release description.
+
+## Roadmap Helper
 
 After marking completed tasks in `roadmap.md`, run:
 
@@ -66,15 +89,17 @@ After marking completed tasks in `roadmap.md`, run:
 node update-changlog.mjs
 ```
 
-The helper moves completed tasks into `changelog.md` under the current package version and removes them from the roadmap. See [ROADMAP.md](ROADMAP.md) for the required format.
+The helper transfers completed tasks into the current package version's section in `changelog.md` and removes them from the roadmap.
 
-## Source references
+See the [Roadmap](../../roadmap.md) and [Roadmap Guide](ROADMAP.md) for the required format and instructions.
 
-- [`package.json`](../../package.json) — available commands.
-- [`esbuild.config.mjs`](../../esbuild.config.mjs) — build configuration.
-- [`deploy-test.mjs`](../../deploy-test.mjs) — test deployment.
-- [`version-bump.mjs`](../../version-bump.mjs) — version synchronization.
-- [`release.mjs`](../../release.mjs) — release automation.
-- [`release-notes.mjs`](../../release-notes.mjs) — extract the current version's changelog section for release notes.
-- [`update-changlog.mjs`](../../update-changlog.mjs) — changelog helper.
+## Source References
+
+- [`package.json`](../../package.json) — Available npm commands.
+- [`esbuild.config.mjs`](../../esbuild.config.mjs) — Build configuration.
+- [`deploy-test.mjs`](../../deploy-test.mjs) — Test deployment.
+- [`version-bump.mjs`](../../version-bump.mjs) — Version synchronization.
+- [`release.mjs`](../../release.mjs) — Release automation.
+- [`release-notes.mjs`](../../release-notes.mjs) — Release notes extraction.
+- [`update-changlog.mjs`](../../update-changlog.mjs) — Changelog helper.
 - [Release workflow](../../.github/workflows/release.yml) — GitHub release publishing.

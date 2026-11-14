@@ -10,6 +10,7 @@ This document outlines the planned development and release milestones for One-Pl
 
 ### 1.0.0 — Foundation
 
+- [ ] create registerapp.mjs to find regsiterd app and write them in src/regsitery.ts
 - [ ] Establish the core plugin architecture and application lifecycle.
 - [ ] Set up the main settings screen and global plugin settings.
 - [ ] Set up MarkDB and create the default database when the plugin starts for the first time.
@@ -60,3 +61,5 @@ This document outlines the planned development and release milestones for One-Pl
 ---
 
 _This roadmap is subject to change as development progresses. Features and release milestones may be adjusted based on technical requirements and user feedback._
+
+For instructions on organizing roadmap tasks and transferring completed items to the changelog, see the [Roadmap Guide](docs/dev/ROADMAP.md). The [Package Scripts](docs/dev/SCRIPTS.md) guide documents the `node update-changlog.mjs` helper and its effects.

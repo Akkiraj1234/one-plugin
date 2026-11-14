@@ -4,37 +4,53 @@ Instructions for AI coding agents working in OnePlugin. Treat these as repositor
 
 ## Start Here
 
-Before making changes, read the relevant parts of:
+Before changing code or documentation, read the relevant parts of:
 
+- [Developer documentation index](docs/dev/README.md) to find the relevant workflow and architecture guide.
 - [Contributing guide](CONTRIBUTING.md) for code, testing, and pull request expectations.
-- [Development guide](docs/dev/DEVELOPMENT.md) for environment setup and test-vault use.
-- [Architecture overview](ARCHITECTURE.md) for runtime structure and code ownership.
+- [Architecture overview](ARCHITECTURE.md) and its linked [plugin runtime guide](docs/dev/Architecture/PLUGIN.md) for runtime structure and ownership.
+- [Development guide](docs/dev/DEVELOPMENT.md) for environment setup and test-vault use when setup or UI testing is involved.
 - [Package script reference](docs/dev/SCRIPTS.md) before choosing an npm command.
 
-Read the owning implementation and its nearby tests before editing. Follow the current code and documentation if an older example or assumption differs from them. Do not invent a standard Obsidian sample-plugin layout for this repository.
+Read the owning implementation and its nearby tests before editing. Trace the behavior through its callers, registration points, tests, and docs as needed. Treat current source and its tests as authoritative if an older document or example differs. Do not assume a standard Obsidian sample-plugin layout or treat planned architecture as implemented behavior.
+
+## Working Method
+
+1. Establish the exact behavior or documentation outcome requested. Inspect the current working tree and the relevant files before editing; preserve user and generated changes you did not make.
+2. Identify the owning implementation and the smallest complete set of affected callers, tests, fixtures, configuration, exports, and documentation.
+3. State a local hypothesis about the behavior and choose the narrowest check that could disprove it before making a code change.
+4. Make the smallest complete change that fits the existing design. Prefer existing project helpers, types, dependencies, and patterns. Do not add speculative features, layers, settings, dependencies, or boilerplate.
+5. After the first code edit, run the focused relevant test, build, lint, or type check before more exploration or edits. Repair failures in the same slice and rerun that check.
+6. Finish the requested work, including affected tests and references. Report checks that passed, failed, or could not be run; do not claim unrun checks passed.
+
+For documentation-only changes, verify local Markdown links and referenced commands, and ensure the text matches current source behavior. Keep claims about planned work explicitly labeled as planned.
 
 ## Project Facts
 
 OnePlugin is an Obsidian desktop and mobile plugin. Runtime code is TypeScript and browser-compatible JavaScript built with esbuild. Node.js is for development, test, build, and release tooling, not plugin runtime modules.
 
 - `src/main.ts` is the Obsidian plugin lifecycle entry point.
-- `src/core/` owns app coordination, settings, shared types, and MarkDB integration.
-- `src/widgets/` contains features; `src/widgets/index.ts` is the widget registry.
+- `src/registry.ts` registers application definitions; `src/core/registry.ts` owns the duplicate-checking application registry.
+- `src/core/runtime.ts` coordinates settings initialization, application startup, and reverse-order shutdown.
+- `src/core/platform/settingstab.ts` owns the Obsidian settings tab and persisted plugin settings.
+- `src/core/markdb/` contains the MarkDB implementation exercised by `tests/markdb/`.
+- `src/core/types/` defines application lifecycle contracts and the current widget definition shape.
+- `src/apps/` contains application implementations and their metadata. The current registry registers Hobby Manager; New Tab metadata is not currently registered.
+- `src/widgets/` is not the current feature implementation location. Do not create or assume that path without an explicit architecture change.
 - `tests/markdb/` contains MarkDB tests; `tests/scripts/` contains Node tooling tests.
-- `docs/dev/`, `docs/user/`, and `docs/adr/` contain developer guides, user documentation, and architecture decision records.
+- `docs/dev/`, `docs/user/`, and `docs/adr/` contain developer guides, user documentation, and architecture decision records. Start at [docs/dev/README.md](docs/dev/README.md) for documentation navigation.
 - `esbuild.config.mjs` outputs generated files under `build/<package-name>/` (currently `build/oneplugin-obsidian/`). Never hand-edit generated output.
 
-For detailed ownership and lifecycle behavior, use [ARCHITECTURE.md](ARCHITECTURE.md).
+For system-level design and detailed runtime behavior, use [ARCHITECTURE.md](ARCHITECTURE.md) and the [plugin runtime guide](docs/dev/Architecture/PLUGIN.md).
 
 ## Required Working Practices
 
-1. Establish the concrete task and inspect the relevant files, tests, and current Git changes before editing.
-2. Keep changes scoped to the request. Preserve pre-existing user changes; do not revert, overwrite, or stage them.
-3. Follow existing project patterns and the requirements in [CONTRIBUTING.md](CONTRIBUTING.md). Use meaningful names, focused functions, browser-compatible runtime APIs, and existing dependencies where possible.
-4. Add or update tests for behavior changes. Keep tests in `tests/` and use temporary directories for filesystem tests.
-5. Update the relevant documentation when commands, APIs, architecture, user behavior, or development workflow changes.
-6. Run the narrowest relevant check first. For TypeScript or plugin changes, use the appropriate npm scripts below; report any checks you could not run and do not claim unrun checks passed.
-7. Finish with a concise account of the files changed, checks run, and any remaining warnings or risks.
+1. Keep changes scoped to the request. Preserve pre-existing user changes; do not revert, overwrite, stage, or commit them unless explicitly asked.
+2. Follow existing project patterns and [CONTRIBUTING.md](CONTRIBUTING.md). Use meaningful names, focused functions, browser-compatible runtime APIs, and existing dependencies where possible.
+3. Add or update tests for behavior changes. Keep tests in `tests/` and use temporary directories for filesystem tests.
+4. Update relevant documentation and cross-references when commands, APIs, architecture, user behavior, or development workflow changes.
+5. Use the narrowest relevant check first. Use npm scripts documented below and in [SCRIPTS.md](docs/dev/SCRIPTS.md).
+6. Finish with a concise account of the files changed, checks run, and remaining warnings or risks.
 
 If requirements are ambiguous in a way that could change public behavior, persisted data, compatibility, or release state, ask before choosing an irreversible interpretation. Otherwise, make the smallest reasonable implementation and state the assumption.
 
@@ -47,8 +63,10 @@ If requirements are ambiguous in a way that could change public behavior, persis
 - Do not use Node.js built-ins in `src/` application code. Use Obsidian APIs for vault and plugin behavior.
 - Register Obsidian commands with `addCommand()`, keep released command IDs stable, and register lifecycle-bound events using Obsidian cleanup helpers.
 - Consider desktop and mobile behavior, keep startup work light, and avoid unnecessary vault scans or large retained data.
-- Keep UI text short and sentence-case. Use Obsidian's UI components and DOM helpers where appropriate. Follow existing widget CSS naming and selectors; avoid generic global selectors and styles that leak into other widgets. Check the owning widget and `src/styles.css` before changing UI styling.
+- Keep UI text short and sentence-case. Use Obsidian's UI components and DOM helpers where appropriate. Follow the owning application's CSS naming and selectors; avoid generic global selectors and styles that leak across features. Check the owning app and `src/styles.css` before changing UI styling.
 - Avoid unsafe HTML insertion and direct DOM patterns that conflict with the project's lint rules. Prefer Obsidian DOM helpers and safe text APIs.
+- Use Obsidian APIs for vault and plugin behavior. Do not access files outside the vault or introduce network requests unless the feature clearly requires it and the data use is documented.
+- Follow the application's lifecycle contract in `src/core/types/application.ts`; register new application definitions through the existing registry path and preserve deterministic startup ordering.
 
 ## Security and Privacy
 
@@ -63,7 +81,7 @@ If requirements are ambiguous in a way that could change public behavior, persis
 - Use [docs/README.md](docs/README.md) to navigate the documentation set.
 - Put setup and command instructions in `docs/dev/`; user-facing feature guidance in `docs/user/`; significant architectural decisions in `docs/adr/`.
 - Link to the owning source file when implementation detail needs a source of truth. Include a short explanation rather than duplicating large code descriptions.
-- Verify relative Markdown links and command names after documentation edits.
+- Update indexes and nearby cross-references when adding or renaming a guide. Verify relative Markdown links and command names after documentation edits.
 
 ## npm Commands
 
