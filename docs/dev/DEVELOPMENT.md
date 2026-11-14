@@ -52,7 +52,7 @@ The [script reference](SCRIPTS.md) explains every package command, supported arg
 ## Where to work
 
 - `src/core/` — app coordination, settings, shared types, and MarkDB.
-- `src/widgets/` — user-facing feature implementations and widget registration.
+- `src/apps/` — user-facing feature implementations and widget registration.
 - `tests/` — automated tests; MarkDB tests are in `tests/markdb/` and script tests in `tests/scripts/`.
 - `docs/` — developer guides, user documentation, and architecture decision records.
 - Root `.mjs` files — build, deployment, changelog, version, and release tooling.
