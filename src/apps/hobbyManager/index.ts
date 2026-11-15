@@ -5,25 +5,11 @@ export class HobbyManager implements Application {
 
 	async initialize(context: ApplicationContext): Promise<void> {
 		this.context = context;
-
-		console.log('[HobbyManager] Initialized');
 	}
 
-	async prepare(): Promise<void> {
-		console.log('[HobbyManager] Prepared');
-	}
+	async start(): Promise<void> {}
 
-	async start(): Promise<void> {
-		console.log('[HobbyManager] Started');
-	}
-
-	async stop(): Promise<void> {
-		console.log('[HobbyManager] Stopped');
-	}
-
-	async dispose(): Promise<void> {
+	async destroy(): Promise<void> {
 		this.context = undefined;
-
-		console.log('[HobbyManager] Disposed');
 	}
 }

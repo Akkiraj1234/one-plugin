@@ -5,7 +5,7 @@ const hobbyManager: ApplicationDefinition = {
 	id: 'hobby-manager',
 	name: 'Hobby Manager',
 
-	settings: {
+	default_settings: {
 		enabled: true,
 		theme: 'default',
 		showHeatmap: true,

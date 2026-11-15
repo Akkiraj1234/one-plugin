@@ -1,6 +1,4 @@
-import type { WidgetSettings } from '@/core/types';
-
-export interface GitHubActivitySettings extends WidgetSettings {
+export interface GitHubActivitySettings {
     username: string;
     openInNewTab: boolean;
 }

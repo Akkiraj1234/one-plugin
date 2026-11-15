@@ -1,7 +1,6 @@
 import { ItemView, Modal, type Plugin, type WorkspaceLeaf } from 'obsidian';
 import type { WidgetDefinition } from '@/core/types';
 import { renderGitHubActivity, type GitHubActivityActions } from './render';
-import { DEFAULT_GITHUB_ACTIVITY_SETTINGS, renderGitHubActivitySettings } from './settings';
 import type { GitHubActivitySettings } from './types';
 
 const VIEW_TYPE_GITHUB_ACTIVITY = 'akki-github-activity';
@@ -126,9 +125,7 @@ class GitHubActivityWidget {
     }
 }
 
-export const githubActivityWidget: WidgetDefinition<GitHubActivitySettings> = {
+export const githubActivityWidget: WidgetDefinition = {
     id: 'github-activity',
-    defaultSettings: DEFAULT_GITHUB_ACTIVITY_SETTINGS,
-    create: (context) => new GitHubActivityWidget(context.plugin, context.settings),
-    renderSettings: renderGitHubActivitySettings,
+    name: 'GitHub activity',
 };

@@ -1,10 +1,14 @@
 import { Setting } from 'obsidian';
-import type { WidgetSettingsContext } from '@/core/types';
 import type { GitHubActivitySettings } from './types';
 
 export const DEFAULT_GITHUB_ACTIVITY_SETTINGS: GitHubActivitySettings = { username: '', openInNewTab: true };
 
-export function renderGitHubActivitySettings(containerEl: HTMLElement, context: WidgetSettingsContext<GitHubActivitySettings>): void {
+export interface GitHubActivitySettingsContext {
+    settings: GitHubActivitySettings;
+    updateSettings(updater: (current: GitHubActivitySettings) => void): Promise<void>;
+}
+
+export function renderGitHubActivitySettings(containerEl: HTMLElement, context: GitHubActivitySettingsContext): void {
     const { settings } = context;
     const updateSettings = (updater: (current: GitHubActivitySettings) => void): Promise<void> => context.updateSettings(updater);
     new Setting(containerEl)
