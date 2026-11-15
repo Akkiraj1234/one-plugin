@@ -2,6 +2,10 @@ import { PluginSettingTab, Setting } from 'obsidian';
 import type { Plugin, App } from 'obsidian';
 import type { SettingContext } from '../types';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * Renders the One Plugin settings header.
  *
@@ -48,7 +52,8 @@ function renderRootSettings(
 	settings: Record<string, unknown>,
 	onSave: (path: string) => Promise<void>,
 ): void {
-	let databasePath = String(settings.databasePath ?? '');
+	let databasePath =
+		typeof settings.databasePath === 'string' ? settings.databasePath : '';
 
 	new Setting(containerEl)
 		.setName('Database location')
@@ -152,13 +157,17 @@ export class OnePluginSettingTab extends PluginSettingTab {
 		}
 	}
 
-	private createAppContainer(id: string): HTMLElement {
-		let container = this.appContainers.get(id);
+	private createAppContainer(applicationId: string): HTMLElement {
+		let container = this.appContainers.get(applicationId);
 
 		if (!container) {
 			container = document.createElement('div');
 			container.className = 'oneplugin-app-settings';
-			this.appContainers.set(id, container);
+			this.appContainers.set(applicationId, container);
+
+			if (this.containerEl.isConnected) {
+				this.containerEl.appendChild(container);
+			}
 		}
 
 		return container;
@@ -174,11 +183,9 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	getSettingObj(): SettingContext {
 		return {
 			createContainer: (id: string) => this.createAppContainer(id),
-
 			getSetting: (id: string) => this.settings[id],
-
 			register: (id, callback) => {
-				// Implement later.
+				// Placeholder until settings change notifications are designed.
 			},
 		};
 	}
@@ -192,11 +199,16 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	 * @returns A promise that resolves when settings have been loaded.
 	 */
 	async loadSettings(): Promise<void> {
-		this.settings = Object.assign(
-			{},
-			this.defaultsSettings,
-			(await this.plugin.loadData()) ?? {},
-		);
+		const storedSettings: unknown = await this.plugin.loadData();
+		const savedSettings = isRecord(storedSettings) ? storedSettings : {};
+		this.settings = { ...this.defaultsSettings, ...savedSettings };
+
+		for (const [applicationId, defaults] of Object.entries(this.defaultsSettings)) {
+			const saved = savedSettings[applicationId];
+			if (isRecord(defaults) && isRecord(saved)) {
+				this.settings[applicationId] = { ...defaults, ...saved };
+			}
+		}
 	}
 
 	/**

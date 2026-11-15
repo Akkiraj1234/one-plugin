@@ -10,9 +10,7 @@ export interface WidgetDefinition {
 // Settings context returned by getSettingObj().
 export interface SettingContext {
 	createContainer(id: string): HTMLElement;
-
 	getSetting(id: string): unknown;
-
 	register(
 		id: string,
 		callback: (value: unknown) => void,
@@ -41,7 +39,6 @@ export interface ApplicationDefinition {
 // Application lifecycle contract.
 export interface Application {
 	initialize(context: ApplicationContext): Promise<void>;
-	prepare(): Promise<void>;
 	start(): Promise<void>;
 	destroy(): Promise<void>;
 }

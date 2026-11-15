@@ -14,11 +14,11 @@ This document outlines the planned development and release milestones for One-Pl
 
 **Goal: Make the plugin start and stop its apps reliably, give apps the settings they need, and save data safely.**
 
-- [ ] Finish the app lifecycle: start apps in registration order and stop them in reverse order.
+- [ ] Finish the app lifecycle: load apps independently and destroy every running app during plugin shutdown.
 - [ ] Give each app access to its own settings through the shared app context, and connect that access to the plugin's settings screen and saved settings.
-- [ ] Handle an app failing while it starts: report the problem, clean up that app, and stop any apps that already started.
-- [ ] Handle shutdown failures: try to dispose an app even if stopping it fails, and continue shutting down the other apps.
-- [ ] Add runtime tests for startup order, shutdown order, settings access, and startup or shutdown failures.
+- [ ] Handle an app failing while it starts: report the problem, clean up that app, and continue loading the other apps.
+- [ ] Handle shutdown failures: continue destroying the other apps when one app fails to destroy.
+- [ ] Add runtime tests for independent app loading, shutdown, settings access, and startup or shutdown failures.
 - [ ] Check that the runtime matches the [Plugin Runtime Architecture](docs/dev/Architecture/PLUGIN.md) guide.
 - [ ] Finish the main settings screen and plugin-wide settings.
 - [ ] Finish connecting MarkDB in `src/core/markdb/` to plugin use:

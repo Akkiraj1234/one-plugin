@@ -2,7 +2,7 @@
 
 OnePlugin is a plugin made for Obsidian. It is not an application itself, but a collection of smaller applications and features that run inside OnePlugin.
 
-OnePlugin is designed to provide a shared environment where applications can work together through a widget-based communication system. All applications use the Obsidian runtime and follow its lifecycle.
+OnePlugin provides a shared runtime for smaller applications inside Obsidian. Applications use the Obsidian runtime and follow the OnePlugin lifecycle.
 
 > **Important!**
 >
@@ -27,13 +27,9 @@ When an application is created, it receives an application context containing ac
 
 ### Application Communication
 
-Applications are designed not to communicate directly with each other. Instead, they will use widgets and a shared communication format.
+Applications do not communicate directly. The plugin currently has no cross-application communication API.
 
-Each application can expose widgets to share its data or functionality. Other applications can use these widgets without knowing how they work internally.
-
-This keeps applications independent and makes it easier to connect new applications to OnePlugin.
-
-_Note: The widget communication system is planned for future development._
+Widget communication is planned future work. The plugin keeps placeholder widget definitions, but they do not provide a communication API or runtime behaviour yet.
 
 ### Application Lifecycle
 
@@ -42,10 +38,8 @@ The central runtime manages the lifecycle of each application.
 Applications go through the following stages:
 
 - **Initialize:** Set up the application and receive its context.
-- **Prepare:** Prepare the resources needed by the application.
 - **Start:** Start the application's functionality.
-- **Stop:** Stop running processes.
-- **Dispose:** Release resources when they are no longer needed.
+- **Destroy:** Stop running work and release resources, including after a partial startup.
 
 ### Obsidian Integration
 

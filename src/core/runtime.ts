@@ -3,12 +3,12 @@ import type { App, Plugin } from 'obsidian';
 
 import { OnePluginSettingTab } from './platform/settingstab';
 import { applicationRegistry } from '../registry';
+import { Notice } from 'obsidian';
 import { FakeMarkDb as MarkDb } from './markdb/fake';
-import { Notice } from 'obsidian'
 
-interface registeryItems {
-	apps: ApplicationDefinition[],
-	defaultSettings: Record<string, unknown>,
+interface RegistryItems {
+	apps: ApplicationDefinition[];
+	defaultSettings: Record<string, unknown>;
 	widgets: Record<string, WidgetDefinition>
 }
 
@@ -72,7 +72,7 @@ export class OnePluginRuntime {
 	 * @returns An object containing registered applications,
 	 * their default settings, and contributed widgets.
 	 */
-	private getAllRegistryItems(): registeryItems {
+	private getAllRegistryItems(): RegistryItems {
 		const apps = applicationRegistry.getAll();
 
 		return {
@@ -101,7 +101,6 @@ export class OnePluginRuntime {
 			application = definition.create();
 
 			await application.initialize(context);
-			await application.prepare();
 			await application.start();
 
 			this.runningApp.set(definition.id, application);
@@ -137,7 +136,7 @@ export class OnePluginRuntime {
 
 	private async setupApplications(
 		apps: ApplicationDefinition[],
-		context: ApplicationContext
+		context: ApplicationContext,
 	): Promise<void> {
 		await Promise.all(
 			apps.map((definition) =>
@@ -145,17 +144,11 @@ export class OnePluginRuntime {
 			),
 		);
 	}
+
 	private async setupAllWidgets(
 		widgets: Record<string, WidgetDefinition>,
-		context: ApplicationContext
 	): Promise<void> {
-		this.widgets = new Map(
-			Object.entries(widgets),
-		);
-
-		for (const [id, widget] of this.widgets) {
-			console.log('Found widget:', id, widget);
-		}
+		this.widgets = new Map(Object.entries(widgets));
 	}
 
 	/**
@@ -164,7 +157,7 @@ export class OnePluginRuntime {
 	 * Collects registered resources, initializes the settings manager,
 	 * creates application instances, and starts each application.
 	 *
-	 * Applications are initialized sequentially in their registry order.
+	 * Applications load independently and may start in parallel.
 	 *
 	 * @returns A promise that resolves when all registered applications
 	 * have completed their startup sequence.
@@ -183,29 +176,24 @@ export class OnePluginRuntime {
 			this.plugin.addSettingTab(this.settingTab);
 			await this.settingTab.initialize();
 
-			// 2. setup markdb instance
-			const settingcontext = this.settingTab.getSettingObj();
-			const databasePath = String(
-				settingcontext.getSetting('databasePath') ??
-				'.OnePlugin/database',
-			);
+			const settingContext = this.settingTab.getSettingObj();
+			const configuredDatabasePath = settingContext.getSetting('databasePath');
+			const databasePath =
+				typeof configuredDatabasePath === 'string'
+					? configuredDatabasePath
+					: '.OnePlugin/database';
 
-			this.markdb = new MarkDb(
-				this.obsidianApp.vault,
-				databasePath,
-			);
+			this.markdb = new MarkDb(this.obsidianApp.vault, databasePath);
 
-			// 3. run all the application.
 			const context: ApplicationContext = {
 				app: this.obsidianApp,
 				plugin: this.plugin,
-				setting: settingcontext,
+				setting: settingContext,
 				markdb: this.markdb,
 			};
 
-			// 4, Start registered applications.
 			await this.setupApplications(registry.apps, context);
-			await this.setupAllWidgets(registry.widgets, context);
+			await this.setupAllWidgets(registry.widgets);
 
 		} catch (error) {
 			console.error('[OnePlugin] Runtime startup failed:', error);
@@ -240,7 +228,7 @@ export class OnePluginRuntime {
 		}
 
 		try {
-			await this.markdb?.close();
+			this.markdb?.close();
 		} catch (error) {
 			console.error('[OnePlugin] Failed to close MarkDb:', error);
 		}

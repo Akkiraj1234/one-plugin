@@ -101,7 +101,7 @@ Use the current project structure:
 - `src/core/registry.ts` — application registry implementation and duplicate-ID checks.
 - `src/core/runtime.ts` — coordinates settings and application startup and shutdown.
 - `src/core/platform/` — Obsidian platform integration, including the settings tab.
-- `src/core/types/` — shared contracts, including application lifecycle types.
+- `src/core/types.ts` — shared application, settings, and lifecycle contracts.
 - `src/core/markdb/` — MarkDB implementation.
 - `src/apps/` — application implementations and their metadata.
 - `tests/markdb/` — MarkDB tests.
@@ -145,8 +145,8 @@ These rules describe how to approach implementation. They do not require copying
 - Shared services and platform integration belong in `src/core/`; application-specific behavior belongs in `src/apps/<app>/`.
 - Keep `src/main.ts` focused on Obsidian's plugin lifecycle and delegation to the OnePlugin runtime.
 - Register application definitions through the existing registration path in `src/registry.ts`. Do not instantiate applications from arbitrary UI code or introduce directory scanning.
-- Keep application definitions separate from runtime instances. Follow the current contracts in `src/core/types/application.ts` and the runtime flow in `src/core/runtime.ts`.
-- Preserve deterministic application registration and startup order. Respect reverse-order shutdown.
+- Keep application definitions separate from runtime instances. Follow the current contracts in `src/core/types.ts` and the runtime flow in `src/core/runtime.ts`.
+- Preserve explicit application registration. Applications load independently; shutdown must continue when an application's `destroy()` fails.
 - Do not invent lifecycle methods, context services, widget APIs, or cross-application communication APIs. Check the current types and accepted architecture first.
 - Applications should not reach into another application's private implementation. Use an existing shared service or an explicitly designed communication contract.
 - Keep MarkDB concerns within its own implementation boundary. Do not couple unrelated application or runtime code to MarkDB internals.
