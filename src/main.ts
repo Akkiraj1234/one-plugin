@@ -18,11 +18,7 @@ export default class OnePlugin extends Plugin {
 		await this.runtime.start();
 	}
 
-	async onunload(): Promise<void> {
-		if (!this.runtime) {
-			return;
-		}
-
-		await this.runtime.stop();
+	onunload(): void {
+		void this.runtime?.stop();
 	}
 }

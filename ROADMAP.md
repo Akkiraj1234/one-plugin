@@ -12,38 +12,26 @@ This document outlines the planned development and release milestones for One-Pl
 
 ### 1.0.0 — Foundation
 
-**Current focus: Complete the plugin runtime foundation.**
+**Goal: Make the plugin start and stop its apps reliably, give apps the settings they need, and save data safely.**
 
-- [ ] Complete the core plugin architecture and application lifecycle implementation.
-    - [ ] Finalize the shared settings interface provided through `ApplicationContext`.
-    - [ ] Connect application settings access to the runtime and remove unused settings-manager code.
-    - [ ] Implement startup failure handling for application initialization, preparation, and startup.
-    - [ ] Ensure partially initialized applications and previously started applications are cleaned up safely.
-    - [ ] Ensure `dispose()` is attempted even when an application's `stop()` fails.
-    - [ ] Continue shutting down other applications when one application fails.
-- [ ] Add runtime lifecycle tests.
-    - [ ] Test application startup order.
-    - [ ] Test reverse-order shutdown.
-    - [ ] Test application settings access.
-    - [ ] Test startup failure and cleanup behavior.
-    - [ ] Test shutdown when `stop()` or `dispose()` fails.
-- [ ] Verify the plugin runtime against the [Plugin Runtime Architecture](docs/dev/Architecture/PLUGIN.md) guide.
-- [ ] Establish the core plugin architecture and application lifecycle.
-- [ ] Set up the main settings screen and global plugin settings.
-- [ ] Create `registerapp.mjs` to discover registered applications and generate `src/registry.ts`.
-- [ ] Set up MarkDB inside `src/core/markdb/`.
-    - [ ] Move the existing implementation from `oldsrc/core/markdb/` into the new source structure.
-    - [ ] Ensure the existing MarkDB tests pass against the migrated implementation.
-    - [ ] Create the default database when the plugin starts for the first time.
-    - [ ] Define the initial database structure and schemas.
-    - [ ] Implement basic data operations (create, read, update, and delete).
-    - [ ] Add data validation and error handling.
-    - [ ] Ensure database changes are safely saved and persist after restarting Obsidian.
-- [ ] Create and maintain documentation for the core architecture, database, settings, and development process.
-- [ ] Improve and add test cases for new and modified functionality.
-- [ ] Ensure existing tests continue to pass after changes.
+- [ ] Finish the app lifecycle: start apps in registration order and stop them in reverse order.
+- [ ] Give each app access to its own settings through the shared app context, and connect that access to the plugin's settings screen and saved settings.
+- [ ] Handle an app failing while it starts: report the problem, clean up that app, and stop any apps that already started.
+- [ ] Handle shutdown failures: try to dispose an app even if stopping it fails, and continue shutting down the other apps.
+- [ ] Add runtime tests for startup order, shutdown order, settings access, and startup or shutdown failures.
+- [ ] Check that the runtime matches the [Plugin Runtime Architecture](docs/dev/Architecture/PLUGIN.md) guide.
+- [ ] Finish the main settings screen and plugin-wide settings.
+- [ ] Finish connecting MarkDB in `src/core/markdb/` to plugin use:
+    - [ ] Create the default database the first time the plugin starts.
+    - [ ] Define the database's starting structure and data rules (schemas).
+    - [ ] Support creating, reading, updating, and deleting data.
+    - [ ] Check data is valid and give clear errors when something goes wrong.
+    - [ ] Save changes so they are still there after Obsidian restarts.
+    - [ ] Keep the MarkDB tests passing.
+- [ ] Keep the developer guides up to date for the runtime, settings, MarkDB, and development process.
+- [ ] Add tests for changed behavior and make sure existing tests still pass.
 
-**Recommended order:** Finish the runtime foundation and its tests first. Then migrate and integrate MarkDB.
+**Recommended order:** Finish and test the app lifecycle and settings first. Then connect MarkDB and verify its tests.
 
 ### 1.1.0 — Hobby Manager
 

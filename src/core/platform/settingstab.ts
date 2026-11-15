@@ -1,5 +1,6 @@
 import { PluginSettingTab, Setting } from 'obsidian';
 import type { Plugin, App } from 'obsidian';
+import type { SettingContext } from '../types';
 
 /**
  * Renders the One Plugin settings header.
@@ -85,6 +86,7 @@ function renderRootSettings(
  * and its registered applications.
  */
 export class OnePluginSettingTab extends PluginSettingTab {
+	private appContainers = new Map<string, HTMLElement>();
 	defaultsSettings: Record<string, unknown>;
 	settings: Record<string, unknown> = {};
 	plugin: Plugin;
@@ -134,14 +136,33 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
-
 		renderHeader(containerEl);
-		renderRootSettings(containerEl, this.settings, async (path) => {
-			this.settings.databasePath = path;
-			await this.saveSettings();
-		});
+
+		renderRootSettings(
+			containerEl,
+			this.settings,
+			async (path) => {
+				this.settings.databasePath = path;
+				await this.saveSettings();
+			},
+		);
+
+		for (const container of this.appContainers.values()) {
+			containerEl.appendChild(container);
+		}
 	}
 
+	private createAppContainer(id: string): HTMLElement {
+		let container = this.appContainers.get(id);
+
+		if (!container) {
+			container = document.createElement('div');
+			container.className = 'oneplugin-app-settings';
+			this.appContainers.set(id, container);
+		}
+
+		return container;
+	}
 	/**
 	 * Creates a settings interface for registered applications.
 	 *
@@ -150,11 +171,13 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	 *
 	 * @returns An object containing the application settings interface.
 	 */
-	getSettingObj() {
+	getSettingObj(): SettingContext {
 		return {
-			containerEl: this.containerEl,
+			createContainer: (id: string) => this.createAppContainer(id),
+
 			getSetting: (id: string) => this.settings[id],
-			register: (id: string, callback: (value: unknown) => void) => {
+
+			register: (id, callback) => {
 				// Implement later.
 			},
 		};
