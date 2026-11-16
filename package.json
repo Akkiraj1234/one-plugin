@@ -12,9 +12,9 @@
 		"check": "npm run lint && npm test",
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production",
-		"deploy-test": "node deploy-test.mjs",
-		"version": "node version-bump.mjs && git add manifest.json versions.json",
-		"release": "node release.mjs"
+		"deploy-test": "node scripts/deploy-test.mjs",
+		"version": "node scripts/version-bump.mjs && git add manifest.json versions.json",
+		"release": "node scripts/release.mjs"
 	},
 	"keywords": [
 		"obsidian",

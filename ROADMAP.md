@@ -75,4 +75,4 @@ This document outlines the planned development and release milestones for One-Pl
 
 _This roadmap is subject to change as development progresses. Features and release milestones may be adjusted based on technical requirements and user feedback._
 
-For instructions on organizing roadmap tasks and transferring completed items to the changelog, see the [Roadmap Guide](docs/dev/ROADMAP.md). The [Package Scripts](docs/dev/SCRIPTS.md) guide documents the `node update-changlog.mjs` helper and its effects.
+For instructions on organizing roadmap tasks and transferring completed items to the changelog, see the [Roadmap Guide](docs/dev/ROADMAP.md). The [Package Scripts](docs/dev/SCRIPTS.md) guide documents the `node scripts/update-changlog.mjs` helper and its effects.

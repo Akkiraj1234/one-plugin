@@ -230,7 +230,10 @@ async function copyFileToDestination(sourcePath, pluginPath) {
  * @returns {Promise<void>}
  */
 async function main() {
-	const projectDir = path.dirname(fileURLToPath(import.meta.url));
+	const projectDir = path.resolve(
+		path.dirname(fileURLToPath(import.meta.url)),
+		'..',
+	);
 	const configPath = path.join(projectDir, "workflow.json");
 	const manifestPath = path.join(projectDir, "manifest.json");
 

@@ -72,7 +72,7 @@ jobs:
                       ${{ steps.build-dir.outputs.path }}/LICENSE
 
             - name: Prepare release notes from changelog
-              run: node release-notes.mjs "$GITHUB_REF_NAME"
+              run: node scripts/release-notes.mjs "$GITHUB_REF_NAME"
 
             - name: Create release
               env:

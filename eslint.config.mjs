@@ -20,12 +20,7 @@ export default defineConfig(
 		'package-lock.json',
 
 		// Development and release scripts.
-		'deploy-test.mjs',
 		'esbuild.config.mjs',
-		'release.mjs',
-		'release-notes.mjs',
-		'update-changlog.mjs',
-		'version-bump.mjs',
 
 		// Project configuration and metadata.
 		'eslint.config.mjs',
@@ -60,6 +55,7 @@ export default defineConfig(
 		files: [
 			'*.mjs',
 			'*.mts',
+			'scripts/**/*.{js,mjs,ts,mts}',
 			'tests/**/*.{js,mjs,ts,mts}',
 		],
 		languageOptions: {

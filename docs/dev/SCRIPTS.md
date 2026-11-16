@@ -43,7 +43,7 @@ npm run lint
 npm run build
 ```
 
-`deploy-test.mjs` handles test-vault validation and deployment, while `esbuild.config.mjs` handles bundling.
+`scripts/deploy-test.mjs` handles test-vault validation and deployment, while `esbuild.config.mjs` handles bundling.
 
 ## Versioning and Releases
 
@@ -79,14 +79,14 @@ The release script runs the release workflow, including checks, version updates,
 
 The release workflow uses fully qualified Git refs when checking and pushing tags. It also derives `BUILD_DIR` from the package name and uses it consistently for artifact validation, provenance attestation, and release uploads.
 
-Release notes are extracted from the matching version section in `changelog.md` using `release-notes.mjs` and used as the GitHub release description.
+Release notes are extracted from the matching version section in `changelog.md` using `scripts/release-notes.mjs` and used as the GitHub release description.
 
 ## Roadmap Helper
 
 After marking completed tasks in `roadmap.md`, run:
 
 ```sh
-node update-changlog.mjs
+node scripts/update-changlog.mjs
 ```
 
 The helper transfers completed tasks into the current package version's section in `changelog.md` and removes them from the roadmap.
@@ -97,9 +97,9 @@ See the [Roadmap](../../roadmap.md) and [Roadmap Guide](ROADMAP.md) for the requ
 
 - [`package.json`](../../package.json) — Available npm commands.
 - [`esbuild.config.mjs`](../../esbuild.config.mjs) — Build configuration.
-- [`deploy-test.mjs`](../../deploy-test.mjs) — Test deployment.
-- [`version-bump.mjs`](../../version-bump.mjs) — Version synchronization.
-- [`release.mjs`](../../release.mjs) — Release automation.
-- [`release-notes.mjs`](../../release-notes.mjs) — Release notes extraction.
-- [`update-changlog.mjs`](../../update-changlog.mjs) — Changelog helper.
+- [`scripts/deploy-test.mjs`](../../scripts/deploy-test.mjs) — Test deployment.
+- [`scripts/version-bump.mjs`](../../scripts/version-bump.mjs) — Version synchronization.
+- [`scripts/release.mjs`](../../scripts/release.mjs) — Release automation.
+- [`scripts/release-notes.mjs`](../../scripts/release-notes.mjs) — Release notes extraction.
+- [`scripts/update-changlog.mjs`](../../scripts/update-changlog.mjs) — Changelog helper.
 - [Release workflow](../../.github/workflows/release.yml) — GitHub release publishing.

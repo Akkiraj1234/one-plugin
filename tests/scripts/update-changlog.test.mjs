@@ -9,9 +9,9 @@ import {
     addToChangelog,
     getCompletedItems,
     updateChangelog,
-} from '../../update-changlog.mjs';
+} from '../../scripts/update-changlog.mjs';
 
-const SCRIPT_PATH = fileURLToPath(new URL('../../update-changlog.mjs', import.meta.url));
+const SCRIPT_PATH = fileURLToPath(new URL('../../scripts/update-changlog.mjs', import.meta.url));
 
 /** Creates an isolated project directory and removes it after the test. */
 async function createProject(context, { version = '1.2.3', roadmap, changelog } = {}) {

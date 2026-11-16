@@ -55,6 +55,11 @@ The [script reference](SCRIPTS.md) explains every package command, supported arg
 - `src/apps/` — user-facing feature implementations and their registrations.
 - `tests/` — automated tests; MarkDB tests are in `tests/markdb/` and script tests in `tests/scripts/`.
 - `docs/` — developer guides, user documentation, and architecture decision records.
-- Root `.mjs` files — build, deployment, changelog, version, and release tooling.
+- `scripts/` — deployment, changelog, version, and release tooling.
+- Root configuration files — build and lint configuration.
 
 Build output is generated under `build/`; do not edit or commit it manually. For contribution expectations, see [CONTRIBUTING.md](../../CONTRIBUTING.md).
+
+## Styling
+
+Before adding application styles, read [ADR 0001: Application Styling and CSS Build Strategy](../adr/0001-application-styling-and-css-build.md). It defines the required `index.css` and `shadow.css` conventions and selector namespace rules.

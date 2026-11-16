@@ -38,7 +38,7 @@ Keep tasks specific and actionable. Only mark a task as complete when all its wo
 When roadmap tasks are completed, they can be transferred into `changelog.md` using the changelog update helper:
 
 ```sh
-node update-changlog.mjs
+node scripts/update-changlog.mjs
 ```
 
 Before running the helper, make sure `package.json` contains the version that should receive the completed entries.

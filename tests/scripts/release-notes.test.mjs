@@ -5,9 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import test from 'node:test';
-import { getReleaseNotes } from '../../release-notes.mjs';
+import { getReleaseNotes } from '../../scripts/release-notes.mjs';
 
-const SCRIPT_PATH = fileURLToPath(new URL('../../release-notes.mjs', import.meta.url));
+const SCRIPT_PATH = fileURLToPath(new URL('../../scripts/release-notes.mjs', import.meta.url));
 
 test('getReleaseNotes returns only the matching version body', () => {
     const changelog = [

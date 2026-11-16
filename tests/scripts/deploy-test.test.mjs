@@ -12,7 +12,7 @@ import {
     load_config,
     loadManifest,
     validateConfig,
-} from "../../deploy-test.mjs";
+} from "../../scripts/deploy-test.mjs";
 
 
 /**

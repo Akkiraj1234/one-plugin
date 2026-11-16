@@ -1,0 +1,5 @@
+/* eslint and esbuild should be updated to search for all css files
+inside the src folder for which are seletced and build them 
+and put them in build folder. that means
+src will not contain styles.css file in the root
+each app can contain there own css files and esbuild will search and build */

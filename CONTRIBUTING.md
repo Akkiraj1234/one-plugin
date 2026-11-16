@@ -62,6 +62,7 @@ When working on OnePlugin, please follow these guidelines:
 - Keep plugin code compatible with the browser environment.
 - **Do not use Node.js modules or Node.js APIs inside the plugin runtime.** This applies even if ESLint does not report an issue. Node.js modules should only be used in development and build tools.
 - Follow existing coding patterns and reuse available dependencies.
+- Follow [ADR 0001: Application Styling and CSS Build Strategy](./docs/adr/0001-application-styling-and-css-build.md) when adding or changing application CSS.
 - Keep command IDs and saved settings keys stable after release.
 - Document API or data format changes and explain their impact on existing users.
 - Add or update tests under `tests/`. Follow existing test conventions and use temporary directories for filesystem tests.

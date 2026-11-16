@@ -177,7 +177,7 @@ run('npm', ['run', 'lint']);
 run('npm', ['test']);
 
 // Version bump.
-// The npm "version" lifecycle runs version-bump.mjs to synchronize
+// The npm "version" lifecycle runs scripts/version-bump.mjs to synchronize
 // manifest.json and versions.json.
 console.log('\nUpdating release version...');
 run('npm', [
@@ -188,7 +188,7 @@ run('npm', [
 
 // Move completed roadmap items into the changelog.
 console.log('\nUpdating changelog...');
-run(process.execPath, ['update-changlog.mjs']);
+run(process.execPath, ['scripts/update-changlog.mjs']);
 
 const releaseVersion = readVersion('package.json');
 

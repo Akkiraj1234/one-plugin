@@ -38,7 +38,7 @@ export function getReleaseNotes(changelog, version) {
 async function main() {
     const [version, ...extraArguments] = process.argv.slice(2);
     if (!version || extraArguments.length > 0) {
-        throw new Error('Usage: node release-notes.mjs <version>');
+        throw new Error('Usage: node scripts/release-notes.mjs <version>');
     }
 
     const changelog = await readFile('changelog.md', 'utf8');

@@ -108,6 +108,7 @@ Use the current project structure:
 - `tests/scripts/` — development-tooling tests.
 - `docs/dev/`, `docs/user/`, and `docs/adr/` — developer guides, user documentation, and architecture decision records.
 - `esbuild.config.mjs` — build configuration; generated output is written under `build/<package-name>/`.
+- `scripts/` — deployment, changelog, version, and release tooling.
 
 Do not create or assume a `src/widgets/` feature directory. Widget communication is a planned architectural area; check its current status before implementing anything that depends on it.
 
