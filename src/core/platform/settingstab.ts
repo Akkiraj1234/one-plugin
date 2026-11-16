@@ -161,7 +161,7 @@ export class OnePluginSettingTab extends PluginSettingTab {
 		let container = this.appContainers.get(applicationId);
 
 		if (!container) {
-			container = document.createElement('div');
+			container = this.containerEl.createDiv();
 			container.className = 'oneplugin-app-settings';
 			this.appContainers.set(applicationId, container);
 

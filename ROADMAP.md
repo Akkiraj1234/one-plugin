@@ -8,6 +8,8 @@ This document outlines the planned development and release milestones for One-Pl
 
 ## Future Improvements
 
+- [ ] implemenent the `getSettingDefinitions` for [duel support](<https://docs.obsidian.md/Plugins/User+interface/Settings#Legacy+imperative+display()+approach>)
+
 ## Release Roadmap
 
 ### 1.0.0 — Foundation

@@ -32,11 +32,11 @@ class GitHubActivityModal extends Modal {
     onClose(): void { this.contentEl.empty(); }
 }
 
-class GitHubActivityWidget {
+export class GitHubActivityWidget {
     private readonly pendingEmptyLeaves = new Set<WorkspaceLeaf>();
     private readonly allowedEmptyLeaves = new WeakSet<WorkspaceLeaf>();
 
-    constructor(private readonly plugin: Plugin, private readonly settings: GitHubActivitySettings) {}
+    constructor(private readonly plugin: Plugin, private readonly settings: GitHubActivitySettings) { }
 
     on_load(): void {
         this.plugin.registerView(VIEW_TYPE_GITHUB_ACTIVITY, (leaf) => new GitHubActivityView(
