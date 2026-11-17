@@ -5,8 +5,8 @@
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
-		"test": "npm run test:markdb && npm run test:scripts",
-		"test:markdb": "node --import jiti/register tests/markdb/errors.test.ts && node --import jiti/register tests/markdb/core.test.ts && node --import jiti/register tests/markdb/backends.test.ts",
+		"test": "npm run test:plugin && npm run test:scripts",
+		"test:plugin": "node --test tests/runtime/*.test.mjs",
 		"test:scripts": "node --test tests/scripts/*.test.mjs",
 		"lint": "eslint .",
 		"check": "npm run lint && npm test",

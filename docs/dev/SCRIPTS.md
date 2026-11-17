@@ -13,8 +13,8 @@ npm run release -- patch
 | `npm run dev`          | Start the development build in watch mode.                |
 | `npm run build`        | Run TypeScript checks and create a production build.      |
 | `npm run deploy-test`  | Build and copy the plugin into the configured test vault. |
-| `npm test`             | Run all automated tests.                                  |
-| `npm run test:markdb`  | Run MarkDB tests only.                                    |
+| `npm run test`         | Run all automated tests.                                  |
+| `npm run test:plugin`  | Run The Test For The Plugin.                              |
 | `npm run test:scripts` | Run development-script tests only.                        |
 | `npm run lint`         | Run ESLint.                                               |
 | `npm run check`        | Run lint and all automated tests.                         |
