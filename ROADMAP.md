@@ -23,7 +23,7 @@ This document outlines the planned development and release milestones for One-Pl
 - [ ] Create a shared dirty-state tracker for settings and MarkDB that records changed values and retains a dirty reference until those changes are saved.
 - [x] Handle an app failing while it starts: report the problem, clean up that app, and continue loading the other apps.
 - [x] Handle shutdown failures: continue destroying the other apps when one app fails to destroy.
-- [ ] Add runtime tests for independent app loading, shutdown, settings access, and startup or shutdown failures.
+- [x] Add runtime tests for independent app loading, shutdown, settings access, and startup or shutdown failures.
 - [x] Check that the runtime matches the [Plugin Runtime Architecture](docs/dev/Architecture/PLUGIN.md) guide.
 - [ ] Finish the main settings screen and plugin-wide settings.
 - [ ] Finish connecting MarkDB in `src/core/markdb/` to plugin use:
