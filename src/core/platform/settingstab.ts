@@ -15,6 +15,8 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * @param containerEl - Parent element where the header will be rendered.
  */
 function renderHeader(containerEl: HTMLElement): void {
+	// TODO: add a Logo beside the heaidng and defination and make it pretty
+	// TODO : make the heading "One Plugin" and version and improve the description.
 	const header = containerEl.createDiv({
 		cls: 'setting-item akki-settings-header',
 	});
@@ -33,6 +35,7 @@ function renderHeader(containerEl: HTMLElement): void {
 		cls: 'setting-item-description',
 	});
 }
+
 
 /**
  * Renders the root-level settings controls.
@@ -76,6 +79,15 @@ function renderRootSettings(
 		);
 }
 
+
+class ConstObject {
+
+}
+
+class DirtyObject {
+
+}
+
 /**
  * Central settings manager for the One Plugin.
  *
@@ -91,11 +103,11 @@ function renderRootSettings(
  * and its registered applications.
  */
 export class OnePluginSettingTab extends PluginSettingTab {
+	private readonly listeners: Record<string, ((value: unknown) => void)[]> = {};
 	private appContainers = new Map<string, HTMLElement>();
-	defaultsSettings: Record<string, unknown>;
-	settings: Record<string, unknown> = {};
-	plugin: Plugin;
-
+	private defaultsSettings: Record<string, unknown>;
+	private settings: Record<string, unknown> = {};
+	private plugin: Plugin;
 	/**
 	 * Creates a new settings manager.
 	 *
@@ -172,6 +184,12 @@ export class OnePluginSettingTab extends PluginSettingTab {
 
 		return container;
 	}
+
+	private register(path: string, callback: (value: unknown) => void): void {
+		const listeners = this.listeners[path] ??= [];
+		listeners.push(callback);
+	}
+
 	/**
 	 * Creates a settings interface for registered applications.
 	 *
@@ -184,9 +202,7 @@ export class OnePluginSettingTab extends PluginSettingTab {
 		return {
 			createContainer: (id: string) => this.createAppContainer(id),
 			getSetting: (id: string) => this.settings[id],
-			register: (id, callback) => {
-				// Placeholder until settings change notifications are designed.
-			},
+			register: (id, callback) => this.register(id, callback),
 		};
 	}
 
