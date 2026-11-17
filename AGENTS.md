@@ -166,7 +166,7 @@ These rules describe how to approach implementation. They do not require copying
 - Keep UI text short, clear, and in sentence case. Follow Obsidian's interaction and accessibility conventions.
 - Prefer Obsidian components and DOM helpers where appropriate. Use safe text APIs; avoid unsafe HTML insertion.
 - Preserve keyboard access, accessible labels, focus behavior, and sensible empty/loading/error states.
-- Check the owning application's existing UI and `src/styles.css` before changing styles.
+- Check the owning application's existing UI and stylesheet before changing styles.
 - Follow local CSS naming and scoping conventions. Avoid broad element selectors or rules that leak into other applications or Obsidian itself.
 - Do not add global styling for a component that belongs to one application.
 

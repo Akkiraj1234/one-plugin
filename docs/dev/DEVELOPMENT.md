@@ -31,6 +31,8 @@ npm run dev
 
 This rebuilds the plugin when source files change.
 
+When adding, removing, or editing an application `index.css` file, restart `npm run dev` so the global stylesheet is collected again. This limitation does not apply to `npm run build` or `npm run deploy-test`.
+
 When you want to test your changes in Obsidian, run:
 
 ```sh
@@ -62,4 +64,4 @@ Build output is generated under `build/`; do not edit or commit it manually. For
 
 ## Styling
 
-Before adding application styles, read [ADR 0001: Application Styling and CSS Build Strategy](../adr/0001-application-styling-and-css-build.md). It defines the required `index.css` and `shadow.css` conventions and selector namespace rules.
+Before adding application styles, read [ADR 0001: Application Styling and CSS Build Strategy](../adr/0001-application-styling-and-css-build.md). The build automatically combines `src/**/index.css` files into `styles.css`, while TypeScript imports `shadow.css` as text for Shadow DOM use.

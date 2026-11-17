@@ -45,6 +45,10 @@ npm run build
 
 `scripts/deploy-test.mjs` handles test-vault validation and deployment, while `esbuild.config.mjs` handles bundling.
 
+### CSS development limitation
+
+The build collects `src/**/index.css` files before esbuild starts. While `npm run dev` is running, restart it after adding, removing, or editing an `index.css` file. Production builds and `npm run deploy-test` always collect the current files.
+
 ## Versioning and Releases
 
 ### Update the Version
@@ -97,6 +101,7 @@ See the [Roadmap](../../roadmap.md) and [Roadmap Guide](ROADMAP.md) for the requ
 
 - [`package.json`](../../package.json) — Available npm commands.
 - [`esbuild.config.mjs`](../../esbuild.config.mjs) — Build configuration.
+- [`scripts/build/buildcss.js`](../../scripts/build/buildcss.js) — Application stylesheet discovery and Shadow CSS text imports.
 - [`scripts/deploy-test.mjs`](../../scripts/deploy-test.mjs) — Test deployment.
 - [`scripts/version-bump.mjs`](../../scripts/version-bump.mjs) — Version synchronization.
 - [`scripts/release.mjs`](../../scripts/release.mjs) — Release automation.
