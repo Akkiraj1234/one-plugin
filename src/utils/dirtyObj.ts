@@ -1,51 +1,45 @@
-type TrackableObject = object;
+import {
+    deepFreeze,
+    structuredImmutableClone,
+    isTrackable,
+    sameDescriptor
+} from './utils';
 
-function isTrackable(value: unknown): value is TrackableObject {
-    if (value === null || typeof value !== 'object') {
-        return false;
-    }
-    const prototype = Object.getPrototypeOf(value);
 
-    return Array.isArray(value)
-        ? prototype === Array.prototype
-        : prototype === Object.prototype || prototype === null;
+function createProxy<T>(
+    target: T,
+    onChange: () => void,
+) {
+
 }
-
-function sameDescriptor(a: PropertyDescriptor | undefined, b: PropertyDescriptor | undefined): boolean {
-    if (!a || !b) return a === b;
-
-    return (
-        a.configurable === b.configurable
-        && a.enumerable === b.enumerable
-        && a.writable === b.writable
-        && Object.is(a.value, b.value)
-    );
-}
-
-/**
- * Creates an independent, mutable copy of supported data.
- *
- * Supports:
- * - Plain objects
- * - Arrays
- * - Nested objects and arrays
- * - Circular references
- * - Shared references
- *
- * Rejects:
- * - Frozen/sealed/non-extensible objects
- * - Accessor properties
- * - Non-plain object types
- * - Locked object-valued properties
- */
-function structuredMutableClone<V>(value: V): V {
-    if (value === null || typeof value !== 'object') {
-        throw new TypeError('structuredMutableClone only supports plain objects and arrays.');
-    }
-}
-
 
 export class DirtyObject<T extends object> {
+    readonly #OrignalObject: T;
+    readonly #proxy: T;
+
+    private version = 0;
+    private cleanVersion = 0;
+
+    constructor(value: T) {
+        this.#OrignalObject = structuredImmutableClone(value) as T;
+        this.#proxy = createProxy(
+            this.#OrignalObject,
+            () => this.version++
+        ) as T;
+    }
+
+    onChange() {
+        this.version++;
+    }
+
+    get(): T {
+        return this.#proxy;
+    }
+}
+
+
+
+export class DirtyObject1<T extends object> {
     readonly #target: T;
     readonly #proxy: T;
 
