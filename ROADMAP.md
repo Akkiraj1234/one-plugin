@@ -20,7 +20,7 @@ This document outlines the planned development and release milestones for One-Pl
 - [x] Finish the app lifecycle: load apps independently and destroy every running app during plugin shutdown.
 - [x] Give each app access to its own settings through the shared app context, and connect that access to the plugin's settings screen and saved settings.
 - [ ] Finish application settings updates and change notifications, including the placeholder `register()` API.
-- [ ] Create a shared dirty-state tracker for settings and MarkDB that records changed values and retains a dirty reference until those changes are saved.
+- [x] Create a shared dirty-state tracker for settings and MarkDB that records changed values and retains a dirty reference until those changes are saved.
 - [x] Handle an app failing while it starts: report the problem, clean up that app, and continue loading the other apps.
 - [x] Handle shutdown failures: continue destroying the other apps when one app fails to destroy.
 - [x] Add runtime tests for independent app loading, shutdown, settings access, and startup or shutdown failures.

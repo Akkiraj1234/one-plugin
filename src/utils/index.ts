@@ -1,8 +1,13 @@
 import {
-    deepFreeze,
     structuredImmutableClone,
+    sameDescriptor,
     isTrackable,
-    sameDescriptor
+    deepFreeze,
+    AsyncMutex,
+    deepEqual
 } from './utils';
 
-import { DirtyObject } from './dirtyObj';
+import {
+    DirtyObject,
+    safeDirty
+} from './dirtyObj';
