@@ -16,6 +16,7 @@ For the system overview, see [ARCHITECTURE.md](../../../ARCHITECTURE.md).
 | [`src/core/runtime.ts`](../../../src/core/runtime.ts) | Creates shared plugin services and coordinates application loading and shutdown. |
 | [`src/core/platform/settingstab.ts`](../../../src/core/platform/settingstab.ts) | Loads, saves, and renders plugin settings. |
 | [`src/core/types.ts`](../../../src/core/types.ts) | Defines application metadata, shared settings, lifecycle, and placeholder service contracts. |
+| [`src/utils/dirtyObj.ts`](../../../src/utils/dirtyObj.ts) | Shared dirty-state tracking and snapshot utility. |
 
 ## Plugin entry point
 
@@ -117,6 +118,7 @@ OnePlugin runtime code is bundled for Obsidian's browser-compatible environment.
 ## Related guides
 
 - [Application Architecture](APPLICATION.md) — Application-specific structure and behaviour.
+- [Dirty Object Architecture](DIRTY-OBJECT.md) — Shared mutable-state tracking, snapshots, and save coordination.
 - [MarkDB Architecture](MARKDB.md) — MarkDB storage and data flow.
 - [Widget Architecture](WIDGETS.md) — Planned widget communication work.
 - [Developer Documentation](../README.md) — Development workflows and references.
