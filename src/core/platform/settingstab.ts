@@ -1,6 +1,7 @@
 import { PluginSettingTab, Setting } from 'obsidian';
 import type { Plugin, App } from 'obsidian';
 import type { SettingContext } from '../types';
+import { DirtyObject, structuredImmutableClone } from "@/utils"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -80,14 +81,6 @@ function renderRootSettings(
 }
 
 
-class ConstObject {
-
-}
-
-class DirtyObject {
-
-}
-
 /**
  * Central settings manager for the One Plugin.
  *
@@ -106,8 +99,10 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	private readonly listeners: Record<string, ((value: unknown) => void)[]> = {};
 	private appContainers = new Map<string, HTMLElement>();
 	private defaultsSettings: Record<string, unknown>;
-	private settings: Record<string, unknown> = {};
+	private settingproxy: Record<string, unknown> = {};
+	private dirtyObj: DirtyObject<Record<string, unknown>>
 	private plugin: Plugin;
+
 	/**
 	 * Creates a new settings manager.
 	 *
@@ -201,9 +196,13 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	getSettingObj(): SettingContext {
 		return {
 			createContainer: (id: string) => this.createAppContainer(id),
-			getSetting: (id: string) => this.settings[id],
+			getSetting: (id: string) => this.settingproxy[id],
 			register: (id, callback) => this.register(id, callback),
 		};
+	}
+
+	settingOnChange(): Promise<void> {
+
 	}
 
 	/**
@@ -217,14 +216,17 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	async loadSettings(): Promise<void> {
 		const storedSettings: unknown = await this.plugin.loadData();
 		const savedSettings = isRecord(storedSettings) ? storedSettings : {};
-		this.settings = { ...this.defaultsSettings, ...savedSettings };
+		const settings = { ...this.defaultsSettings, ...savedSettings };
 
 		for (const [applicationId, defaults] of Object.entries(this.defaultsSettings)) {
 			const saved = savedSettings[applicationId];
 			if (isRecord(defaults) && isRecord(saved)) {
-				this.settings[applicationId] = { ...defaults, ...saved };
+				settings[applicationId] = { ...defaults, ...saved };
 			}
 		}
+
+		this.dirtyObj = new DirtyObject(settings);
+		this.settingproxy = this.dirtyObj.get()
 	}
 
 	/**
@@ -233,6 +235,12 @@ export class OnePluginSettingTab extends PluginSettingTab {
 	 * @returns A promise that resolves once settings are saved.
 	 */
 	async saveSettings(): Promise<void> {
-		await this.plugin.saveData(this.settings);
+		if (this.dirtyObj.isDirty) {
+			await this.plugin.saveData(
+				this.settingproxy
+			);
+
+			this.dirtyObj.holly();
+		};
 	}
 }

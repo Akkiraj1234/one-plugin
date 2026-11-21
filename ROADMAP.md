@@ -10,6 +10,8 @@ This document outlines the planned development and release milestones for One-Pl
 
 - [ ] implemenent the `getSettingDefinitions` for [duel support](<https://docs.obsidian.md/Plugins/User+interface/Settings#Legacy+imperative+display()+approach>)
 - [x] fix Css global build and shadow build according to the ADR-0001.
+- [x] Update the DirtyObject `onChange` definition for compatibility (`dffaf07`).
+- [x] Add nested property-path tracking to DirtyObject and update its documentation (`514f413`).
 
 ## Release Roadmap
 
