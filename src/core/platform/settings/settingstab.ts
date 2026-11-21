@@ -1,7 +1,7 @@
 import { PluginSettingTab, Setting } from 'obsidian';
+import { DirtyObject, structuredImmutableClone, DirtyChange } from "@/utils"
+import type { SettingContext } from '../../types';
 import type { Plugin, App } from 'obsidian';
-import type { SettingContext } from '../types';
-import { DirtyObject, structuredImmutableClone } from "@/utils"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);

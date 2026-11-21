@@ -1,7 +1,7 @@
 import type { Application, ApplicationContext, ApplicationDefinition, WidgetDefinition } from './types';
 import type { App, Plugin } from 'obsidian';
 
-import { OnePluginSettingTab } from './platform/settingstab';
+import { OnePluginSettingTab } from './platform/settings/settingstab';
 import { applicationRegistry } from '../registry';
 import { Notice } from 'obsidian';
 import { FakeMarkDb as MarkDb } from './markdb/fake';
