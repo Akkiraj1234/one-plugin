@@ -7,7 +7,7 @@ import {
 
 interface DirtyChange {
     target: object;
-    property: PropertyKey;
+    path: readonly PropertyKey[];
     operation: 'set' | 'delete' | 'define';
 }
 
@@ -72,15 +72,16 @@ function handleProxyFunction<T extends object>(
 /**
  * Creates a recursive Proxy that tracks mutations to an object.
  *
- * Nested objects receive their own proxies but share the same state,
- * ensuring all mutations update the root version and report their
- * mutation details through onChange.
+ * Nested objects receive their own proxies but share the same state.
+ * Each nested proxy maintains its path from the root object, allowing
+ * mutations to report their complete location through onChange.
  *
  * @param target - Object to wrap with a Proxy.
  * @param state - Shared state used to track mutations.
+ * @param path - Property path from the root to the current target.
  * @returns A Proxy that tracks property access and mutations.
  */
-function createProxy<T extends object>(target: T, state: SharedProxyState): T {
+function createProxy<T extends object>(target: T, state: SharedProxyState, path: PropertyKey[] = []): T {
     return new Proxy(target, {
 
         /**
@@ -119,9 +120,8 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
                 state
             );
             if (helper) return helper;
-
             if (isTrackable(value)) {
-                return createProxy(value, state);
+                return createProxy(value, state, [...path, property]);
             }
 
             return value;
@@ -135,10 +135,7 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
          *
          * After a successful assignment, increments the shared version
          * and invokes the registered change callback with the target object,
-         * modified property, and operation type.
-         *
-         * After a successful assignment, increments the shared version
-         * and invokes the registered change callback.
+         * mutation path, and operation type.
          *
          * @param target - The object receiving the assignment.
          * @param property - The property key being modified.
@@ -160,7 +157,7 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
                 state.version++;
                 state.onChange?.({
                     target,
-                    property,
+                    path: [...path, property],
                     operation: "set"
                 });
             }
@@ -174,7 +171,7 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
          * Checks whether the property exists before attempting deletion.
          * A successful deletion increments the shared version and invokes
          * the registered change callback with the target object,
-         * deleted property, and operation type.
+         * mutation path, and operation type.
          *
          * @param target - The object containing the property.
          * @param property - The property key being deleted.
@@ -194,7 +191,7 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
                 state.version++;
                 state.onChange?.({
                     target,
-                    property,
+                    path: [...path, property],
                     operation: "delete"
                 });
             }
@@ -208,7 +205,7 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
          * Delegates the definition to Reflect.defineProperty(). When the
          * operation succeeds, updates the shared version and invokes the
          * registered change callback with the target object,
-         * defined property, and operation type.
+         * mutation path, and operation type.
          *
          * @param target - The object receiving the property definition.
          * @param property - The property key being defined.
@@ -226,7 +223,7 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
                 state.version++;
                 state.onChange?.({
                     target,
-                    property,
+                    path: [...path, property],
                     operation: "define"
                 });
             }
@@ -281,6 +278,8 @@ function safeDirty<R>(proxy: object, callback: () => R | Promise<R>): Promise<R>
  * Any successful mutation through the proxy updates the shared version
  * and marks the object as dirty. Mutation details are reported through
  * the optional onChange callback.
+ * Mutation paths identify the complete location of a change
+ * relative to the root object, including nested properties.
  *
  * The root proxy can be shared across multiple parts of an application.
  * Consumers can modify nested properties without managing individual
@@ -333,7 +332,7 @@ class DirtyObject<T extends object> {
      * @param value - Initial data to manage.
      * @param onChange - Optional callback invoked after a successful
      * mutation through the proxy. Receives a DirtyChange object containing
-     * the mutated target object, property key, and operation type.
+     * the mutated target object, complete property path, and operation type.
      *
      * @example
      * const dirty = new DirtyObject(

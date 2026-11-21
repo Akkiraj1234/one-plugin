@@ -13,7 +13,7 @@ It is independent of Settings, MarkDB, and Obsidian storage. Applications own th
 - Clone initial data into an independent working object.
 - Track mutations recursively through nested plain objects and arrays.
 - Maintain a shared modification version and dirty state.
-- Report mutation details through an optional change callback.
+- Report mutation details and their property paths through an optional change callback.
 - Provide immutable snapshots.
 - Synchronize protected asynchronous operations using a shared mutex.
 
@@ -39,18 +39,20 @@ The standalone `safeDirty(proxy, callback)` helper is also available when only t
 
 The callback is invoked after a successful mutation and receives a `DirtyChange` object containing:
 
-| Property    | Description                                           |
-| ----------- | ----------------------------------------------------- |
-| `target`    | The actual object containing the modified property.   |
-| `property`  | The property key affected by the mutation.            |
-| `operation` | The mutation operation: `set`, `delete`, or `define`. |
+| Property    | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| `target`    | The actual object containing the modified property.                |
+| `path`      | The complete property path from the root to the modified property. |
+| `operation` | The mutation operation: `set`, `delete`, or `define`.              |
+
+The `path` is an array of property keys. Each nested proxy maintains its own path relative to the root object.
 
 Example:
 
 ```ts
 const hobbies = new DirtyObject({ user: { name: 'Akki' } }, (change) => {
 	console.log(change.target);
-	console.log(change.property);
+	console.log(change.path);
 	console.log(change.operation);
 });
 
@@ -59,7 +61,7 @@ const data = hobbies.get();
 data.user.name = 'Raj';
 
 // target: { name: 'Raj' }
-// property: 'name'
+// path: ['user', 'name']
 // operation: 'set'
 ```
 
@@ -99,9 +101,11 @@ await hobbies.safeDirty(async (data) => {
 ## Important Notes
 
 - Nested proxies share the same underlying data and tracking state, but their identities are not cached.
+- Each nested proxy maintains its property path, allowing mutations to be identified without traversing the object tree.
 - Dirty tracking records mutations, not differences from the original value. Reverting a change does not automatically clear dirty state.
 - Recursive tracking supports plain objects and standard arrays, not arbitrary class instances or built-in objects.
 - The `onChange` callback receives the actual underlying target object, not a proxy or immutable snapshot. Avoid modifying it directly.
+- The `path` identifies the complete location of the mutation relative to the root object.
 - The mutex only protects operations that use it. Direct proxy mutations are not automatically synchronized.
 - Avoid nested `safeDirty()` calls on the same instance because the mutex is not reentrant.
 - Snapshots use `structuredClone()` and recursive freezing. Functions and unsupported values cannot be cloned; freezing `Map` and `Set` does not make their contents immutable.
