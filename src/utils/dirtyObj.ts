@@ -5,11 +5,17 @@ import {
     deepEqual
 } from './utils';
 
+interface DirtyChange {
+    target: object;
+    property: PropertyKey;
+    operation: 'set' | 'delete' | 'define';
+}
+
 interface SharedProxyState {
     mutex: AsyncMutex;
     version: number;
     cleanVersion: number;
-    onChange?: () => void;
+    onChange?: (change: DirtyChange) => void;
 }
 
 
@@ -67,7 +73,8 @@ function handleProxyFunction<T extends object>(
  * Creates a recursive Proxy that tracks mutations to an object.
  *
  * Nested objects receive their own proxies but share the same state,
- * ensuring all mutations update the root version and trigger onChange.
+ * ensuring all mutations update the root version and report their
+ * mutation details through onChange.
  *
  * @param target - Object to wrap with a Proxy.
  * @param state - Shared state used to track mutations.
@@ -127,6 +134,10 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
          * unnecessary updates when both are identical.
          *
          * After a successful assignment, increments the shared version
+         * and invokes the registered change callback with the target object,
+         * modified property, and operation type.
+         *
+         * After a successful assignment, increments the shared version
          * and invokes the registered change callback.
          *
          * @param target - The object receiving the assignment.
@@ -147,7 +158,11 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
 
             if (success) {
                 state.version++;
-                state.onChange?.();
+                state.onChange?.({
+                    target,
+                    property,
+                    operation: "set"
+                });
             }
 
             return success;
@@ -158,7 +173,8 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
          *
          * Checks whether the property exists before attempting deletion.
          * A successful deletion increments the shared version and invokes
-         * the registered change callback.
+         * the registered change callback with the target object,
+         * deleted property, and operation type.
          *
          * @param target - The object containing the property.
          * @param property - The property key being deleted.
@@ -176,7 +192,11 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
 
             if (success) {
                 state.version++;
-                state.onChange?.();
+                state.onChange?.({
+                    target,
+                    property,
+                    operation: "delete"
+                });
             }
 
             return success;
@@ -187,7 +207,8 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
          *
          * Delegates the definition to Reflect.defineProperty(). When the
          * operation succeeds, updates the shared version and invokes the
-         * registered change callback.
+         * registered change callback with the target object,
+         * defined property, and operation type.
          *
          * @param target - The object receiving the property definition.
          * @param property - The property key being defined.
@@ -203,7 +224,11 @@ function createProxy<T extends object>(target: T, state: SharedProxyState): T {
 
             if (success) {
                 state.version++;
-                state.onChange?.();
+                state.onChange?.({
+                    target,
+                    property,
+                    operation: "define"
+                });
             }
 
             return success;
@@ -254,7 +279,8 @@ function safeDirty<R>(proxy: object, callback: () => R | Promise<R>): Promise<R>
  * underlying object and share the same state.
  *
  * Any successful mutation through the proxy updates the shared version
- * and marks the object as dirty.
+ * and marks the object as dirty. Mutation details are reported through
+ * the optional onChange callback.
  *
  * The root proxy can be shared across multiple parts of an application.
  * Consumers can modify nested properties without managing individual
@@ -306,7 +332,8 @@ class DirtyObject<T extends object> {
      *
      * @param value - Initial data to manage.
      * @param onChange - Optional callback invoked after a successful
-     * mutation through the proxy.
+     * mutation through the proxy. Receives a DirtyChange object containing
+     * the mutated target object, property key, and operation type.
      *
      * @example
      * const dirty = new DirtyObject(
@@ -314,7 +341,7 @@ class DirtyObject<T extends object> {
      *     () => console.log('Object changed'),
      * );
      */
-    constructor(value: T, onChange: () => void = () => { }) {
+    constructor(value: T, onChange?: (change: DirtyChange) => void) {
         this.#current = structuredClone(value);
         this.#savedSnapshot = structuredClone(value);
 
@@ -583,5 +610,6 @@ class DirtyObject<T extends object> {
 export {
     safeDirty,
     DirtyObject,
-    type SharedProxyState
+    type SharedProxyState,
+    type DirtyChange
 }
