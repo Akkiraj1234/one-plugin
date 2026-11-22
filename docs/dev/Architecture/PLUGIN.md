@@ -14,7 +14,7 @@ For the system overview, see [ARCHITECTURE.md](../../../ARCHITECTURE.md).
 | [`src/registry.ts`](../../../src/registry.ts) | Composition root that explicitly registers application definitions. |
 | [`src/core/registry.ts`](../../../src/core/registry.ts) | Stores definitions and rejects duplicate IDs. |
 | [`src/core/runtime.ts`](../../../src/core/runtime.ts) | Creates shared plugin services and coordinates application loading and shutdown. |
-| [`src/core/platform/settingstab.ts`](../../../src/core/platform/settingstab.ts) | Loads, saves, and renders plugin settings. |
+| [`src/core/platform/settings/settingstab.ts`](../../../src/core/platform/settings/settingstab.ts) | Loads, saves, and renders plugin settings. |
 | [`src/core/types.ts`](../../../src/core/types.ts) | Defines application metadata, shared settings, lifecycle, and placeholder service contracts. |
 | [`src/utils/dirtyObj.ts`](../../../src/utils/dirtyObj.ts) | Shared dirty-state tracking and snapshot utility. |
 
@@ -76,7 +76,7 @@ Application defaults are stored under their application ID:
 }
 ```
 
-Saved settings override defaults while retaining omitted default keys. The shared `SettingContext` reads settings by application ID. For example, `context.setting.getSetting('hobby-manager')` returns Hobby Manager's settings object. `register()` and widget settings behaviour are placeholders until change notifications and application-level settings contracts are designed.
+Saved settings override defaults while retaining omitted default keys. The shared `SettingContext` reads settings by application ID. For example, `context.setting.getSetting('hobby-manager')` returns Hobby Manager's settings object. Applications can register a listener for a setting path such as `hobby-manager.enabled`; listeners registered on a parent path receive the current parent value when one of its descendants changes. `register()` returns an unsubscribe function.
 
 The settings tab renders plugin-wide settings. An application may ask the shared settings context for a named container in that tab if it has settings to render there. This is optional and is not an application main view; applications create their own user-facing views through Obsidian when needed.
 
