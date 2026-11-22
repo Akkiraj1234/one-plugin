@@ -63,6 +63,9 @@ const buildOptions = {
 	platform: 'browser',
 	format: 'cjs',
 	target: 'es2021',
+	loader: {
+		'.svg': 'text',
+	},
 
 	alias: {
 		'@': path.join(ROOT, 'src')

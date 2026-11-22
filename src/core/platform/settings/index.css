@@ -1,0 +1,60 @@
+.oneplugin-settings-header {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-4);
+	margin: 0 0 var(--size-4-4);
+	padding: 0 0 var(--size-4-4);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.oneplugin-settings-header .oneplugin-settings-logo {
+	width: var(--size-4-12);
+	height: var(--size-4-12);
+	flex: none;
+	margin: 0;
+	object-fit: contain;
+}
+
+.oneplugin-settings-header .oneplugin-settings-heading-info {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--size-2-2);
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.oneplugin-settings-header .oneplugin-settings-title-row {
+	display: flex;
+	align-items: center;
+	gap: var(--size-4-2);
+	margin: 0;
+	padding: 0;
+}
+
+.oneplugin-settings-header .oneplugin-settings-title {
+	margin: 0;
+	padding: 0;
+	font-size: var(--font-ui-larger);
+	font-weight: var(--font-semibold);
+	line-height: var(--line-height-tight);
+	color: var(--text-normal);
+}
+
+.oneplugin-settings-header .oneplugin-settings-version {
+	padding: 1px var(--size-4-2);
+	border-radius: var(--radius-s);
+	background: var(--background-modifier-hover);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	line-height: var(--line-height-tight);
+}
+
+.oneplugin-settings-header .oneplugin-settings-description {
+	margin: 0;
+	padding: 0;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+}

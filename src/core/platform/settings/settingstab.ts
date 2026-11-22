@@ -4,6 +4,7 @@ import type { Plugin, App } from 'obsidian';
 
 import { DirtyObject, isRecord, type DirtyChange } from '@/utils';
 import { settingEventTree, type SettingListener } from './settingeventtree';
+import logoSvg from '../../../../assets/logo1.svg';
 
 
 /**
@@ -14,26 +15,42 @@ import { settingEventTree, type SettingListener } from './settingeventtree';
  * to help users understand the purpose of the plugin.
  *
  * @param containerEl - Parent element where the settings header will be rendered.
+ * @param version - Current plugin version displayed beside the title.
  */
-function renderHeader(containerEl: HTMLElement): void {
-	// TODO: add a Logo beside the heaidng and defination and make it pretty
-	// TODO : make the heading "One Plugin" and version and improve the description.
+function renderHeader(containerEl: HTMLElement, version: string): void {
 	const header = containerEl.createDiv({
-		cls: 'setting-item akki-settings-header',
+		cls: 'oneplugin-settings-header',
+	});
+
+	header.createEl('img', {
+		cls: 'oneplugin-settings-logo',
+		attr: {
+			src: `data:image/svg+xml,${encodeURIComponent(logoSvg)}`,
+			alt: 'OnePlugin logo',
+		},
 	});
 
 	const headingInfo = header.createDiv({
-		cls: 'setting-item-info akki-settings-heading-info',
+		cls: 'oneplugin-settings-heading-info',
+	});
+
+	const titleRow = headingInfo.createDiv({
+		cls: 'oneplugin-settings-title-row',
+	});
+
+	titleRow.createDiv({
+		text: 'OnePlugin',
+		cls: 'oneplugin-settings-title',
+	});
+
+	titleRow.createSpan({
+		text: `v${version}`,
+		cls: 'oneplugin-settings-version',
 	});
 
 	headingInfo.createEl('p', {
-		text: 'Akki Obsidian plugin',
-		cls: 'setting-item-name',
-	});
-
-	headingInfo.createEl('p', {
-		text: 'A collection of tools to manage life and integrate Obsidian into my daily workflow.',
-		cls: 'setting-item-description',
+		text: 'Tools for hobbies, routines, and everyday organisation inside Obsidian.',
+		cls: 'oneplugin-settings-description',
 	});
 }
 
@@ -174,7 +191,7 @@ export class OnePluginSettingTab extends PluginSettingTab {
 		const settings = this.getSettings();
 
 		containerEl.empty();
-		renderHeader(containerEl);
+		renderHeader(containerEl, this.plugin.manifest.version);
 		renderRootSettings(containerEl, settings);
 
 		for (const container of this.appContainers.values()) {

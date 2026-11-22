@@ -23,6 +23,9 @@ const bundle = await build({
     bundle: true,
     platform: 'node',
     format: 'esm',
+	loader: {
+		'.svg': 'text',
+	},
     write: false,
     plugins: [{
         name: 'obsidian-test-stub',
