@@ -172,11 +172,13 @@ test('plugin runtime loads apps independently and provides their settings contex
         );
 
         assert.ok(receivedContext);
-        assert.deepEqual(receivedContext.setting.getSetting('plugin-first'), {
+        const settings = receivedContext.setting.getSetting();
+
+        assert.deepEqual(settings['plugin-first'], {
             enabled: true,
             mode: 'saved',
         });
-        assert.deepEqual(receivedContext.setting.getSetting('plugin-second'), {});
+        assert.deepEqual(settings['plugin-second'], {});
         assert.equal(receivedContext.plugin, plugin.instance);
         assert.equal(receivedContext.app, app);
     } finally {
@@ -390,12 +392,14 @@ test('plugin settings merge defaults, expose app containers, and persist values'
     await tab.initialize();
 
     const setting = tab.getSettingObj();
-    assert.equal(setting.getSetting('global'), 'saved');
-    assert.deepEqual(setting.getSetting('application-settings'), {
+    const settings = setting.getSetting();
+
+    assert.equal(settings.global, 'saved');
+    assert.deepEqual(settings['application-settings'], {
         retained: 'saved',
         added: true,
     });
-    assert.deepEqual(setting.getSetting('invalid'), [
+    assert.deepEqual(settings.invalid, [
         'not',
         'a',
         'settings',
@@ -408,18 +412,34 @@ test('plugin settings merge defaults, expose app containers, and persist values'
         'application-settings',
         (value) => applicationChanges.push({ ...value }),
     );
+    const stopFailingListener = setting.register(
+        'application-settings.retained',
+        () => {
+            throw new Error('listener failed');
+        },
+    );
     const stopRetainedChanges = setting.register(
         'application-settings.retained',
         (value) => retainedChanges.push(value),
     );
 
-    const applicationSettings = setting.getSetting('application-settings');
-    applicationSettings.retained = 'changed';
+    const applicationSettings = settings['application-settings'];
+    const originalConsoleError = console.error;
+    const listenerErrors = [];
+    console.error = (...args) => listenerErrors.push(args);
+
+    try {
+        applicationSettings.retained = 'changed';
+    } finally {
+        console.error = originalConsoleError;
+    }
 
     assert.deepEqual(applicationChanges, [{ retained: 'changed', added: true }]);
     assert.deepEqual(retainedChanges, ['changed']);
+    assert.equal(listenerErrors.length, 1);
 
     stopApplicationChanges();
+    stopFailingListener();
     stopRetainedChanges();
     applicationSettings.added = false;
 
@@ -431,7 +451,7 @@ test('plugin settings merge defaults, expose app containers, and persist values'
     assert.equal(appContainer.className, 'oneplugin-app-settings');
     assert.equal(tab.containerEl.children.length, 1);
 
-    await tab.saveSettings();
+    await tab.flushSave();
 
     assert.deepEqual(plugin.saved, [{
         global: 'saved',

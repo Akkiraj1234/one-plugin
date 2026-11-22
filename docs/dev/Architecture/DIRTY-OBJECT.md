@@ -112,4 +112,6 @@ await hobbies.safeDirty(async (data) => {
 
 ## Integration Status
 
-`DirtyObject` is implemented as a reusable utility. Settings and MarkDB can adopt it independently while retaining their own validation, persistence, change notification, and error-handling responsibilities.
+Settings uses `DirtyObject` for its mutable settings proxy, dirty state, snapshots, and change callback. The settings layer adds debounced persistence and path-based listeners; its public contract and concurrency limitations are documented in [ADR 0002: Settings State and Change Notifications](../../adr/0002-settings-state-and-change-notifications.md).
+
+MarkDB does not use `DirtyObject` yet. It can adopt the utility independently while retaining its own validation, persistence, change notification, and error-handling responsibilities.

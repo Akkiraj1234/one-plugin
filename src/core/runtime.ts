@@ -30,7 +30,7 @@ export interface FailedApplication {
  * - Initializing and managing the plugin settings system.
  * - Creating and maintaining application instances.
  * - Providing a shared context to registered applications.
- * - Coordinating application initialization, preparation, and startup.
+ * - Coordinating application initialization and startup.
  * - Managing the lifecycle of running applications.
  *
  * Integrates with the Obsidian application and plugin APIs to provide
@@ -115,6 +115,15 @@ export class OnePluginRuntime {
 		}
 	}
 
+	/**
+	 * Stops running applications and releases runtime services.
+	 *
+	 * Applications are destroyed in reverse running order. A failure from one
+	 * application, settings persistence, or MarkDb shutdown is logged without
+	 * preventing remaining cleanup from completing.
+	 *
+	 * @returns A promise that resolves after cleanup has been attempted.
+	 */
 	async stop(): Promise<void> {
 		const applications = Array.from(
 			this.runningApp.entries(),

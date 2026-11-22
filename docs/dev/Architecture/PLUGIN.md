@@ -15,6 +15,7 @@ For the system overview, see [ARCHITECTURE.md](../../../ARCHITECTURE.md).
 | [`src/core/registry.ts`](../../../src/core/registry.ts) | Stores definitions and rejects duplicate IDs. |
 | [`src/core/runtime.ts`](../../../src/core/runtime.ts) | Creates shared plugin services and coordinates application loading and shutdown. |
 | [`src/core/platform/settings/settingstab.ts`](../../../src/core/platform/settings/settingstab.ts) | Loads, saves, and renders plugin settings. |
+| [`src/core/platform/settings/settingeventtree.ts`](../../../src/core/platform/settings/settingeventtree.ts) | Stores settings-change listeners by property path. |
 | [`src/core/types.ts`](../../../src/core/types.ts) | Defines application metadata, shared settings, lifecycle, and placeholder service contracts. |
 | [`src/utils/dirtyObj.ts`](../../../src/utils/dirtyObj.ts) | Shared dirty-state tracking and snapshot utility. |
 
@@ -76,7 +77,18 @@ Application defaults are stored under their application ID:
 }
 ```
 
-Saved settings override defaults while retaining omitted default keys. The shared `SettingContext` reads settings by application ID. For example, `context.setting.getSetting('hobby-manager')` returns Hobby Manager's settings object. Applications can register a listener for a setting path such as `hobby-manager.enabled`; listeners registered on a parent path receive the current parent value when one of its descendants changes. `register()` returns an unsubscribe function.
+Saved settings override defaults while retaining omitted default keys. `SettingContext.getSetting()` returns the complete mutable settings object, whose application settings are stored under their application ID:
+
+```ts
+const settings = context.setting.getSetting();
+const hobbyManager = settings['hobby-manager'];
+```
+
+The object is a `DirtyObject` proxy. Changes made through it are tracked and saved after 1.5 seconds without another change. Runtime shutdown calls `flushSave()` to save a pending change immediately. A failed delayed save is logged; it is not retried until another change or shutdown attempts a save.
+
+Applications can register a listener for a dot-separated path such as `hobby-manager.enabled`. Listeners registered on a parent path also receive descendant changes. A listener receives the current value at its own registered path, and `register()` returns an unsubscribe function. Listener errors are logged and do not prevent the remaining listeners from running.
+
+Applications must treat the mutable settings object carefully: settings have no schema validation, dot characters cannot be used in listener path segments, and direct mutations are not serialized with persistence. Keep settings mutations synchronous and do not mutate from listeners. See [ADR 0002](../../adr/0002-settings-state-and-change-notifications.md) for the design, limitations, and required rules.
 
 The settings tab renders plugin-wide settings. An application may ask the shared settings context for a named container in that tab if it has settings to render there. This is optional and is not an application main view; applications create their own user-facing views through Obsidian when needed.
 
@@ -109,7 +121,7 @@ flowchart TD
 
 ## Shutdown
 
-On unload, the runtime calls `destroy()` for every running application. A failure from one app is logged and does not prevent the runtime from destroying the remaining applications. The runtime then saves settings and clears its references.
+On unload, the runtime calls `destroy()` for every running application. A failure from one app is logged and does not prevent the runtime from destroying the remaining applications. The runtime then flushes pending settings changes, closes MarkDb, and clears its references.
 
 ## Build boundary
 

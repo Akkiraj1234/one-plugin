@@ -9,6 +9,7 @@ Each decision should be documented in a numbered or dated Markdown file (for exa
 The following ADRs document important decisions that contributors should read and understand:
 
 - [ADR 0001: Application Styling and CSS Build Strategy](./0001-application-styling-and-css-build.md)
+- [ADR 0002: Settings State and Change Notifications](./0002-settings-state-and-change-notifications.md)
 
 ## Guide
 
