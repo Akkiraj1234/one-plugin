@@ -1,6 +1,7 @@
 import type { App, Plugin } from 'obsidian';
 import type { MarkDb } from './markdb/maindb';
 
+
 // Widget definition is not finalized yet.
 export interface WidgetDefinition {
 	id: string;
@@ -10,11 +11,11 @@ export interface WidgetDefinition {
 // Settings context returned by getSettingObj().
 export interface SettingContext {
 	createContainer(id: string): HTMLElement;
-	getSetting(id: string): unknown;
+	getSetting(): Record<string, unknown>;
 	register(
 		id: string,
 		callback: (value: unknown) => void,
-	): void;
+	): () => void;
 }
 
 // Shared context provided to every application.

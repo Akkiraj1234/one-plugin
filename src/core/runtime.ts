@@ -64,6 +64,93 @@ export class OnePluginRuntime {
 	}
 
 	/**
+	 * Starts the One Plugin runtime.
+	 *
+	 * Collects registered resources, initializes the settings manager,
+	 * creates application instances, and starts each application.
+	 *
+	 * Applications load independently and may start in parallel.
+	 *
+	 * @returns A promise that resolves when all registered applications
+	 * have completed their startup sequence.
+	 */
+	async start(): Promise<void> {
+		try {
+			const registry = this.getAllRegistryItems();
+
+			// 1. Initialize the settings manager.
+			this.settingTab = new OnePluginSettingTab(
+				this.obsidianApp,
+				this.plugin,
+				registry.defaultSettings,
+			);
+
+			this.plugin.addSettingTab(this.settingTab);
+			await this.settingTab.initialize();
+
+			const settingContext = this.settingTab.getSettingObj();
+			const configuredDatabasePath = settingContext.getSetting()['databasePath'];
+			const databasePath =
+				typeof configuredDatabasePath === 'string'
+					? configuredDatabasePath
+					: '.OnePlugin/database';
+
+			this.markdb = new MarkDb(this.obsidianApp.vault, databasePath);
+
+			const context: ApplicationContext = {
+				app: this.obsidianApp,
+				plugin: this.plugin,
+				setting: settingContext,
+				markdb: this.markdb,
+			};
+
+			await this.setupApplications(registry.apps, context);
+			await this.setupAllWidgets(registry.widgets);
+
+		} catch (error) {
+			console.error('[OnePlugin] Runtime startup failed:', error);
+			new Notice('One Plugin runtime startup failed. Check console for details.');
+			await this.stop();
+			throw error;
+		}
+	}
+
+	async stop(): Promise<void> {
+		const applications = Array.from(
+			this.runningApp.entries(),
+		).reverse();
+
+		for (const [id, application] of applications) {
+			try {
+				await application.destroy();
+			} catch (error) {
+				console.error(
+					`[OnePlugin] Failed to destroy ${id}:`,
+					error,
+				);
+			}
+		}
+
+		this.runningApp.clear();
+
+		try {
+			await this.settingTab?.flushSave();
+		} catch (error) {
+			console.error('[OnePlugin] Failed to save settings:', error);
+		}
+
+		try {
+			this.markdb?.close();
+		} catch (error) {
+			console.error('[OnePlugin] Failed to close MarkDb:', error);
+		}
+
+		this.widgets.clear();
+		this.markdb = undefined;
+		this.settingTab = undefined;
+	}
+
+	/**
 	 * Collects all registered application definitions and their resources.
 	 *
 	 * Retrieves application definitions from the application registry
@@ -149,92 +236,5 @@ export class OnePluginRuntime {
 		widgets: Record<string, WidgetDefinition>,
 	): Promise<void> {
 		this.widgets = new Map(Object.entries(widgets));
-	}
-
-	/**
-	 * Starts the One Plugin runtime.
-	 *
-	 * Collects registered resources, initializes the settings manager,
-	 * creates application instances, and starts each application.
-	 *
-	 * Applications load independently and may start in parallel.
-	 *
-	 * @returns A promise that resolves when all registered applications
-	 * have completed their startup sequence.
-	 */
-	async start(): Promise<void> {
-		try {
-			const registry = this.getAllRegistryItems();
-
-			// 1. Initialize the settings manager.
-			this.settingTab = new OnePluginSettingTab(
-				this.obsidianApp,
-				this.plugin,
-				registry.defaultSettings,
-			);
-
-			this.plugin.addSettingTab(this.settingTab);
-			await this.settingTab.initialize();
-
-			const settingContext = this.settingTab.getSettingObj();
-			const configuredDatabasePath = settingContext.getSetting('databasePath');
-			const databasePath =
-				typeof configuredDatabasePath === 'string'
-					? configuredDatabasePath
-					: '.OnePlugin/database';
-
-			this.markdb = new MarkDb(this.obsidianApp.vault, databasePath);
-
-			const context: ApplicationContext = {
-				app: this.obsidianApp,
-				plugin: this.plugin,
-				setting: settingContext,
-				markdb: this.markdb,
-			};
-
-			await this.setupApplications(registry.apps, context);
-			await this.setupAllWidgets(registry.widgets);
-
-		} catch (error) {
-			console.error('[OnePlugin] Runtime startup failed:', error);
-			new Notice('One Plugin runtime startup failed. Check console for details.');
-			await this.stop();
-			throw error;
-		}
-	}
-
-	async stop(): Promise<void> {
-		const applications = Array.from(
-			this.runningApp.entries(),
-		).reverse();
-
-		for (const [id, application] of applications) {
-			try {
-				await application.destroy();
-			} catch (error) {
-				console.error(
-					`[OnePlugin] Failed to destroy ${id}:`,
-					error,
-				);
-			}
-		}
-
-		this.runningApp.clear();
-
-		try {
-			await this.settingTab?.saveSettings();
-		} catch (error) {
-			console.error('[OnePlugin] Failed to save settings:', error);
-		}
-
-		try {
-			this.markdb?.close();
-		} catch (error) {
-			console.error('[OnePlugin] Failed to close MarkDb:', error);
-		}
-
-		this.widgets.clear();
-		this.markdb = undefined;
-		this.settingTab = undefined;
 	}
 }
