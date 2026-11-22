@@ -590,18 +590,17 @@ class DirtyObject<T extends object> {
      */
     async save(persist: (snapshot: Readonly<T>) => void | Promise<void>): Promise<void> {
         await this.#state.mutex.runExclusive(async () => {
+            const version = this.#state.version;
+
             const snapshot = structuredImmutableClone(
                 this.#current,
             );
 
             await persist(snapshot);
 
-            this.#savedSnapshot = structuredClone(
-                this.#current,
-            );
+            this.#savedSnapshot = structuredClone(snapshot);
 
-            this.#state.cleanVersion =
-                this.#state.version;
+            this.#state.cleanVersion = version;
         });
     }
 }

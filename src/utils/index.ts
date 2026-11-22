@@ -4,7 +4,8 @@ import {
     isTrackable,
     deepFreeze,
     AsyncMutex,
-    deepEqual
+    deepEqual,
+    isRecord
 } from './utils';
 
 import {
@@ -23,6 +24,7 @@ export {
     deepFreeze,
     AsyncMutex,
     deepEqual,
+    isRecord,
     type DirtyChange,
     type SharedProxyState
 }
