@@ -13,7 +13,7 @@ const bundle = await build({
         contents: [
             "export { default as OnePlugin } from './src/main';",
             "export { OnePluginRuntime } from './src/core/runtime';",
-            "export { OnePluginSettingTab } from './src/core/platform/settingstab';",
+            "export { OnePluginSettingTab } from './src/core/platform/settings/settingstab';",
             "export { applicationRegistry } from './src/registry';",
         ].join('\n'),
         resolveDir: root,
@@ -66,10 +66,7 @@ const {
 } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`);
 
 // Runtime tests do not need to exercise Obsidian's settings UI rendering.
-// They still use the real settings loading and persistence methods.
-OnePluginSettingTab.prototype.initialize = async function () {
-    await this.loadSettings();
-};
+OnePluginSettingTab.prototype.display = function () {};
 
 function makePlugin(savedData = {}) {
     const saved = [];
@@ -303,7 +300,7 @@ test('plugin runtime destroys apps in reverse startup order and continues after 
 
         assert.deepEqual(startOrder, ['first', 'second', 'third']);
         assert.deepEqual(destroyOrder, ['third', 'second', 'first']);
-        assert.equal(plugin.saved.length, 1);
+        assert.equal(plugin.saved.length, 0);
     } finally {
         restoreConsoleError();
         restoreRegistry();
@@ -326,9 +323,9 @@ test('plugin runtime rethrows settings initialization errors after attempting cl
             /settings initialization failed/,
         );
 
-        // Runtime startup failed, but its failure path still attempts to save
-        // the settings object while stopping the partially initialized runtime.
-        assert.deepEqual(plugin.saved, [{}]);
+        // No settings object exists when initialization fails, so shutdown
+        // must skip persistence while still completing cleanup.
+        assert.deepEqual(plugin.saved, []);
     } finally {
         OnePluginSettingTab.prototype.initialize = originalInitialize;
         restoreConsoleError();
@@ -350,12 +347,10 @@ test('Obsidian plugin delegates loading and unloading to the runtime', async () 
     ]);
 
     const plugin = new OnePlugin();
-    const saved = deferred();
     plugin.app = { vault: {} };
     plugin.loadData = async () => ({});
     plugin.saveData = async () => {
         events.push('settings:saved');
-        saved.resolve();
     };
     plugin.addSettingTab = () => undefined;
 
@@ -364,12 +359,11 @@ test('Obsidian plugin delegates loading and unloading to the runtime', async () 
         assert.deepEqual(events, ['app:start']);
 
         plugin.onunload();
-        await saved.promise;
+        await new Promise((resolve) => setImmediate(resolve));
 
         assert.deepEqual(events, [
             'app:start',
             'app:destroy',
-            'settings:saved',
         ]);
     } finally {
         restoreRegistry();
@@ -393,7 +387,7 @@ test('plugin settings merge defaults, expose app containers, and persist values'
         },
     );
 
-    await tab.loadSettings();
+    await tab.initialize();
 
     const setting = tab.getSettingObj();
     assert.equal(setting.getSetting('global'), 'saved');
@@ -408,6 +402,30 @@ test('plugin settings merge defaults, expose app containers, and persist values'
         'record',
     ]);
 
+    const applicationChanges = [];
+    const retainedChanges = [];
+    const stopApplicationChanges = setting.register(
+        'application-settings',
+        (value) => applicationChanges.push({ ...value }),
+    );
+    const stopRetainedChanges = setting.register(
+        'application-settings.retained',
+        (value) => retainedChanges.push(value),
+    );
+
+    const applicationSettings = setting.getSetting('application-settings');
+    applicationSettings.retained = 'changed';
+
+    assert.deepEqual(applicationChanges, [{ retained: 'changed', added: true }]);
+    assert.deepEqual(retainedChanges, ['changed']);
+
+    stopApplicationChanges();
+    stopRetainedChanges();
+    applicationSettings.added = false;
+
+    assert.deepEqual(applicationChanges, [{ retained: 'changed', added: true }]);
+    assert.deepEqual(retainedChanges, ['changed']);
+
     const appContainer = setting.createContainer('application-settings');
     assert.equal(setting.createContainer('application-settings'), appContainer);
     assert.equal(appContainer.className, 'oneplugin-app-settings');
@@ -418,8 +436,8 @@ test('plugin settings merge defaults, expose app containers, and persist values'
     assert.deepEqual(plugin.saved, [{
         global: 'saved',
         'application-settings': {
-            retained: 'saved',
-            added: true,
+            retained: 'changed',
+            added: false,
         },
         invalid: ['not', 'a', 'settings', 'record'],
     }]);
